@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "💬 AI chat that runs entirely in your browser using Chrome's built-in AI. No servers, no tracking, complete privacy.",
+  "description": "💬 Local-first AI chat using Chrome's built-in AI. Conversations run entirely in your browser and stay on your device.",
   "keywords": [
     "chat",
     "llm",
