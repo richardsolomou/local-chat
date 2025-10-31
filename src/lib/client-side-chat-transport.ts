@@ -1,26 +1,28 @@
-import { type BuiltInAIUIMessage, builtInAI } from "@built-in-ai/core";
+import { builtInAI } from "@built-in-ai/core";
 import {
   type ChatRequestOptions,
   type ChatTransport,
   convertToModelMessages,
   createUIMessageStream,
-  streamText,
+  streamObject,
   type UIMessageChunk,
 } from "ai";
+import { z } from "zod";
+import type { ExtendedBuiltInAIUIMessage } from "~/types/ui-message";
 
 /**
  * Client-side chat transport implementation that handles AI model communication
  * with in-browser AI capabilities (Gemini Nano/Phi4).
  *
- * @implements {ChatTransport<BuiltInAIUIMessage>}
+ * @implements {ChatTransport<ExtendedBuiltInAIUIMessage>}
  */
 export class ClientSideChatTransport
-  implements ChatTransport<BuiltInAIUIMessage>
+  implements ChatTransport<ExtendedBuiltInAIUIMessage>
 {
   async sendMessages(
     options: {
       chatId: string;
-      messages: BuiltInAIUIMessage[];
+      messages: ExtendedBuiltInAIUIMessage[];
       abortSignal: AbortSignal | undefined;
     } & {
       trigger: "submit-message" | "submit-tool-result" | "regenerate-message";
@@ -35,16 +37,76 @@ export class ClientSideChatTransport
     // Check if model is already available to skip progress tracking
     const availability = await model.availability();
     if (availability === "available") {
-      const result = streamText({
-        model,
-        messages: prompt,
-        abortSignal,
+      return createUIMessageStream<ExtendedBuiltInAIUIMessage>({
+        execute: async ({ writer }) => {
+          const result = streamObject({
+            model,
+            schema: z.object({
+              response: z
+                .string()
+                .describe("The assistant's brief response to the user"),
+              suggestions: z
+                .array(z.string())
+                .describe(
+                  "3-4 relevant follow-up questions the USER could ask next (from the user's perspective, not the assistant's)"
+                ),
+            }),
+            system:
+              "Be concise and brief in your responses. Keep answers short and to the point. When providing suggestions, write them from the USER's perspective as questions they might want to ask YOU next.",
+            messages: prompt,
+            abortSignal,
+          });
+
+          let textId: string | undefined;
+          let previousText = "";
+
+          for await (const partialObject of result.partialObjectStream) {
+            if (
+              partialObject.response &&
+              partialObject.response !== previousText
+            ) {
+              if (!textId) {
+                textId = `text-${Date.now()}`;
+                writer.write({
+                  type: "text-start",
+                  id: textId,
+                });
+              }
+              const delta = partialObject.response.slice(previousText.length);
+              if (delta) {
+                writer.write({
+                  type: "text-delta",
+                  id: textId,
+                  delta,
+                });
+              }
+              previousText = partialObject.response;
+            }
+          }
+
+          // End the text stream
+          if (textId) {
+            writer.write({
+              type: "text-end",
+              id: textId,
+            });
+          }
+
+          // Send suggestions after the response is complete
+          const finalObject = await result.object;
+          if (finalObject.suggestions && finalObject.suggestions.length > 0) {
+            writer.write({
+              type: "data-suggestions",
+              id: `suggestions-${Date.now()}`,
+              data: finalObject.suggestions,
+            });
+          }
+        },
       });
-      return result.toUIMessageStream();
     }
 
     // Handle model download with progress tracking
-    return createUIMessageStream<BuiltInAIUIMessage>({
+    return createUIMessageStream<ExtendedBuiltInAIUIMessage>({
       execute: async ({ writer }) => {
         try {
           let downloadProgressId: string | undefined;
@@ -98,25 +160,81 @@ export class ClientSideChatTransport
             });
           });
 
-          // Stream the actual text response
-          const result = streamText({
+          // Stream the actual object response
+          const result = streamObject({
             model,
+            schema: z.object({
+              response: z
+                .string()
+                .describe("The assistant's brief response to the user"),
+              suggestions: z
+                .array(z.string())
+                .describe(
+                  "3-4 relevant follow-up questions the USER could ask next (from the user's perspective, not the assistant's)"
+                ),
+            }),
+            system:
+              "Be concise and brief in your responses. Keep answers short and to the point. When providing suggestions, write them from the USER's perspective as questions they might want to ask YOU next.",
             messages: prompt,
             abortSignal,
-            onChunk(event) {
-              // Clear progress message on first text chunk
-              if (event.chunk.type === "text-delta" && downloadProgressId) {
-                writer.write({
-                  type: "data-modelDownloadProgress",
-                  id: downloadProgressId,
-                  data: { status: "complete", progress: 100, message: "" },
-                });
-                downloadProgressId = undefined;
-              }
-            },
           });
 
-          writer.merge(result.toUIMessageStream({ sendStart: false }));
+          let textId: string | undefined;
+          let previousText = "";
+          let firstChunk = true;
+
+          for await (const partialObject of result.partialObjectStream) {
+            // Clear progress message on first chunk
+            if (firstChunk && downloadProgressId) {
+              writer.write({
+                type: "data-modelDownloadProgress",
+                id: downloadProgressId,
+                data: { status: "complete", progress: 100, message: "" },
+              });
+              downloadProgressId = undefined;
+              firstChunk = false;
+            }
+
+            if (
+              partialObject.response &&
+              partialObject.response !== previousText
+            ) {
+              if (!textId) {
+                textId = `text-${Date.now()}`;
+                writer.write({
+                  type: "text-start",
+                  id: textId,
+                });
+              }
+              const delta = partialObject.response.slice(previousText.length);
+              if (delta) {
+                writer.write({
+                  type: "text-delta",
+                  id: textId,
+                  delta,
+                });
+              }
+              previousText = partialObject.response;
+            }
+          }
+
+          // End the text stream
+          if (textId) {
+            writer.write({
+              type: "text-end",
+              id: textId,
+            });
+          }
+
+          // Send suggestions after the response is complete
+          const finalObject = await result.object;
+          if (finalObject.suggestions && finalObject.suggestions.length > 0) {
+            writer.write({
+              type: "data-suggestions",
+              id: `suggestions-${Date.now()}`,
+              data: finalObject.suggestions,
+            });
+          }
         } catch (error) {
           writer.write({
             type: "data-notification",

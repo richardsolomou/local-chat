@@ -11,7 +11,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "group/input-group relative flex w-full items-center rounded-xl bg-muted/40 outline-none transition-colors dark:bg-muted/20",
+        "group/input-group relative flex w-full items-center rounded-lg border-2 border-border bg-background outline-none transition-colors hover:border-muted-foreground/30",
         "h-9 min-w-0 has-[>textarea]:h-auto",
 
         // Variants based on alignment.
@@ -21,10 +21,10 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
         "has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3",
 
         // Focus state.
-        "has-[[data-slot=input-group-control]:focus-visible]:bg-muted/60 dark:has-[[data-slot=input-group-control]:focus-visible]:bg-muted/30",
+        "has-[[data-slot=input-group-control]:focus-visible]:border-muted-foreground/50",
 
         // Error state.
-        "has-[[data-slot][aria-invalid=true]]:bg-destructive/10",
+        "has-[[data-slot][aria-invalid=true]]:border-destructive",
 
         className
       )}
@@ -36,14 +36,14 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 const inputGroupAddonVariants = cva(
-  "flex h-auto cursor-text select-none items-center justify-center gap-2 py-1.5 font-medium text-muted-foreground text-sm group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4",
+  "flex h-auto cursor-text select-none items-center justify-center gap-2 py-3 font-medium text-muted-foreground text-sm group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4",
   {
     variants: {
       align: {
         "inline-start":
-          "order-first pl-3 has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]",
+          "order-first pl-3 has-[>button]:ml-[-0.25rem] has-[>kbd]:ml-[-0.35rem]",
         "inline-end":
-          "order-last pr-3 has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]",
+          "order-last pr-3 has-[>button]:mr-[-0.25rem] has-[>kbd]:mr-[-0.35rem]",
         "block-start":
           "order-first w-full justify-start px-3 pt-3 group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3",
         "block-end":
@@ -150,7 +150,7 @@ function InputGroupTextarea({
   return (
     <Textarea
       className={cn(
-        "flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 dark:bg-transparent",
+        "flex-1 resize-none rounded-none border-0 bg-transparent px-4 py-3 text-base shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-0 dark:bg-transparent",
         className
       )}
       data-slot="input-group-control"

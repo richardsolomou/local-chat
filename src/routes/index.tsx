@@ -1,12 +1,9 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import {
-  type BuiltInAIUIMessage,
-  doesBrowserSupportBuiltInAI,
-} from "@built-in-ai/core";
+import { doesBrowserSupportBuiltInAI } from "@built-in-ai/core";
 import { createFileRoute } from "@tanstack/react-router";
-import { Paperclip, Send, Sparkles, X } from "lucide-react";
+import { Paperclip, Send, User, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -26,8 +23,19 @@ import {
   PromptInputTextarea,
 } from "~/components/ai-elements/prompt-input";
 import { Response } from "~/components/ai-elements/response";
+import { Suggestion, Suggestions } from "~/components/ai-elements/suggestion";
+import { Layout } from "~/components/layout";
 import { Button } from "~/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { ClientSideChatTransport } from "~/lib/client-side-chat-transport";
+import type { ExtendedBuiltInAIUIMessage } from "~/types/ui-message";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -40,6 +48,7 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<FileList | undefined>(undefined);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check browser support only on client side
@@ -48,33 +57,30 @@ export default function Home() {
     setBrowserSupportsModel(doesBrowserSupportBuiltInAI());
   }, []);
 
-  const {
-    error,
-    status,
-    sendMessage,
-    messages,
-    regenerate,
-    stop,
-    setMessages,
-  } = useChat<BuiltInAIUIMessage>({
-    transport: new ClientSideChatTransport(),
-    onError(error) {
-      toast.error(error.message);
-    },
-    onData: (dataPart) => {
-      // Handle transient notifications
-      if (dataPart.type === "data-notification") {
-        if (dataPart.data.level === "error") {
-          toast.error(dataPart.data.message);
-        } else if (dataPart.data.level === "warning") {
-          toast.warning(dataPart.data.message);
-        } else {
-          toast.info(dataPart.data.message);
+  const { error, status, sendMessage, messages, regenerate, stop } =
+    useChat<ExtendedBuiltInAIUIMessage>({
+      transport: new ClientSideChatTransport(),
+      onError(error) {
+        toast.error(error.message);
+      },
+      onData: (dataPart) => {
+        // Handle transient notifications
+        if (dataPart.type === "data-notification") {
+          if (dataPart.data.level === "error") {
+            toast.error(dataPart.data.message);
+          } else if (dataPart.data.level === "warning") {
+            toast.warning(dataPart.data.message);
+          } else {
+            toast.info(dataPart.data.message);
+          }
         }
-      }
-    },
-    experimental_throttle: 150,
-  });
+        // Handle suggestions from the model
+        if (dataPart.type === "data-suggestions") {
+          setSuggestions(dataPart.data);
+        }
+      },
+      experimental_throttle: 150,
+    });
 
   const isLoading = status !== "ready";
 
@@ -121,67 +127,201 @@ export default function Home() {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-          <span className="text-muted-foreground">Loading...</span>
+          <div className="h-2 w-2 animate-pulse rounded-full bg-zinc-100" />
+          <span className="text-zinc-400">Loading...</span>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="flex h-screen flex-col">
-      {/* Header */}
-      <header className="px-6 py-6">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Sparkles className="h-5 w-5 text-foreground/60" />
-            <h1 className="font-medium text-foreground/80 text-lg">
-              chat.ras.sh
-            </h1>
-          </div>
-          {messages.length > 0 && (
-            <Button
-              disabled={isLoading}
-              onClick={() => setMessages([])}
-              size="sm"
-              variant="ghost"
-            >
-              Clear
-            </Button>
-          )}
-        </div>
-      </header>
+  const handleSuggestionClick = (suggestion: string) => {
+    if (status === "ready") {
+      sendMessage({
+        text: suggestion,
+        files,
+      });
+      setInput("");
+      setFiles(undefined);
 
-      {/* Messages Area */}
-      <Conversation className="flex-1">
-        <ConversationContent className="mx-auto w-full max-w-4xl px-6 py-8">
-          {messages.length === 0 && (
-            <div className="flex min-h-[60vh] items-center justify-center">
-              <div className="max-w-lg space-y-8 text-center">
-                <Sparkles className="mx-auto h-12 w-12 text-foreground/40" />
-                <div className="space-y-3">
-                  <h2 className="font-medium text-2xl text-foreground/90">
-                    Welcome to chat.ras.sh
-                  </h2>
-                  <p className="text-balance text-base text-muted-foreground">
-                    {browserSupportsModel
-                      ? "Your conversations are completely private and processed locally in your browser."
-                      : "Your browser doesn't support built-in AI. Please use Chrome 128+ or Edge 138+."}
-                  </p>
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  return (
+    <Layout
+      input={
+        <div className="space-y-3">
+          {/* Suggestions from model */}
+          {suggestions.length > 0 && !isLoading && messages.length > 0 && (
+            <Suggestions>
+              {suggestions.map((suggestion, index) => (
+                <Suggestion
+                  key={index}
+                  onClick={handleSuggestionClick}
+                  suggestion={suggestion}
+                />
+              ))}
+            </Suggestions>
+          )}
+
+          {/* File Previews */}
+          {files && files.length > 0 && (
+            <div className="flex gap-2">
+              {Array.from(files).map((file, index) => (
+                <div
+                  className="group relative overflow-hidden rounded-lg bg-zinc-800/40"
+                  key={index}
+                >
+                  {file.type.startsWith("image/") ? (
+                    <img
+                      alt={file.name}
+                      className="h-20 w-20 object-cover"
+                      src={URL.createObjectURL(file)}
+                    />
+                  ) : (
+                    <div className="flex h-20 w-20 items-center justify-center">
+                      <span className="max-w-[60px] truncate text-xs text-zinc-400">
+                        {file.name}
+                      </span>
+                    </div>
+                  )}
+                  <button
+                    className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
+                    onClick={() => removeFile(index)}
+                    type="button"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </div>
+              ))}
+            </div>
+          )}
+
+          <PromptInput onSubmit={handleSubmit}>
+            <PromptInputBody>
+              <PromptInputTextarea
+                autoFocus
+                disabled={isLoading}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask anything..."
+                value={input}
+              />
+              <input
+                accept="image/*,audio/*"
+                className="hidden"
+                multiple
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                type="file"
+              />
+            </PromptInputBody>
+            <PromptInputFooter>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <PromptInputSubmit
+                disabled={
+                  isLoading || (!input.trim() && (!files || files.length === 0))
+                }
+                onClick={
+                  status === "submitted" || status === "streaming"
+                    ? stop
+                    : undefined
+                }
+                status={status}
+                type={
+                  status === "submitted" || status === "streaming"
+                    ? "button"
+                    : "submit"
+                }
+              >
+                <Send className="h-4 w-4" />
+              </PromptInputSubmit>
+            </PromptInputFooter>
+          </PromptInput>
+        </div>
+      }
+    >
+      <Conversation>
+        <ConversationContent className="w-full">
+          {messages.length === 0 && !browserSupportsModel && (
+            <div className="flex min-h-[40vh] items-start justify-center pt-12">
+              <div className="max-w-lg rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+                <p className="font-sans text-lg text-zinc-300 leading-relaxed">
+                  Your browser doesn't support built-in AI. Please use Chrome
+                  128+ or Edge 138+.
+                </p>
               </div>
             </div>
           )}
 
-          <div className="space-y-6">
+          {messages.length === 0 && browserSupportsModel && (
+            <Empty className="border-0">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <img
+                    alt="Assistant"
+                    className="h-6 w-6"
+                    src="/favicon-32x32.png"
+                  />
+                </EmptyMedia>
+                <EmptyTitle>Start a conversation</EmptyTitle>
+                <EmptyDescription>
+                  Ask me anything or try one of these suggestions
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <div className="flex w-full flex-wrap justify-center gap-2">
+                  {suggestions.length > 0 && !isLoading
+                    ? suggestions.map((suggestion, index) => (
+                        <Suggestion
+                          key={index}
+                          onClick={handleSuggestionClick}
+                          suggestion={suggestion}
+                        />
+                      ))
+                    : [
+                        "How does AI work?",
+                        "Are black holes real?",
+                        'How many Rs are in the word "strawberry"?',
+                        "What is the meaning of life?",
+                      ].map((suggestion, index) => (
+                        <Suggestion
+                          key={index}
+                          onClick={handleSuggestionClick}
+                          suggestion={suggestion}
+                        />
+                      ))}
+                </div>
+              </EmptyContent>
+            </Empty>
+          )}
+
+          <div className="space-y-4">
             {messages.map((message) => (
               <Message
                 from={message.role === "system" ? "assistant" : message.role}
                 key={message.id}
               >
                 <MessageAvatar
-                  name={message.role === "user" ? "You" : "AI"}
-                  src=""
+                  icon={
+                    message.role === "user" ? (
+                      <User className="h-3.5 w-3.5" />
+                    ) : (
+                      <img
+                        alt="Assistant"
+                        className="h-4 w-4"
+                        src="/favicon-32x32.png"
+                      />
+                    )
+                  }
                 />
                 <MessageContent>
                   {/* Download Progress */}
@@ -190,18 +330,20 @@ export default function Home() {
                       (part) => part.type === "data-modelDownloadProgress"
                     )
                     .map((part, partIndex) => {
-                      if (!part.data.message || status === "ready") return null;
+                      if (!part.data.message || status === "ready") {
+                        return null;
+                      }
 
                       return (
                         <div className="mb-4 space-y-2" key={partIndex}>
-                          <p className="text-base text-muted-foreground">
+                          <p className="text-base text-zinc-400">
                             {part.data.message}
                           </p>
                           {part.data.status === "downloading" &&
                             part.data.progress !== undefined && (
-                              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                              <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
                                 <div
-                                  className="h-full rounded-full bg-primary transition-all duration-300"
+                                  className="h-full rounded-full bg-zinc-100 transition-all duration-300"
                                   style={{
                                     width: `${part.data.progress}%`,
                                   }}
@@ -240,7 +382,7 @@ export default function Home() {
                               Your browser does not support the audio element.
                             </audio>
                             {part.filename && (
-                              <p className="text-muted-foreground text-sm">
+                              <p className="text-sm text-zinc-400">
                                 {part.filename}
                               </p>
                             )}
@@ -255,7 +397,7 @@ export default function Home() {
                   {message.parts
                     .filter((part) => part.type === "text")
                     .map((part, partIndex) => (
-                      <div className="text-base leading-7" key={partIndex}>
+                      <div className="leading-relaxed" key={partIndex}>
                         <Response>{part.text}</Response>
                       </div>
                     ))}
@@ -266,12 +408,20 @@ export default function Home() {
             {/* Loading State */}
             {status === "submitted" && (
               <Message from="assistant">
-                <MessageAvatar name="AI" src="" />
+                <MessageAvatar
+                  icon={
+                    <img
+                      alt="Assistant"
+                      className="h-4 w-4"
+                      src="/favicon-32x32.png"
+                    />
+                  }
+                />
                 <MessageContent>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" />
+                  <div className="flex items-center gap-1.5 text-zinc-400">
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]" />
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]" />
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400" />
                   </div>
                 </MessageContent>
               </Message>
@@ -279,9 +429,9 @@ export default function Home() {
 
             {/* Error State */}
             {error && (
-              <div className="rounded-lg bg-red-50 p-4 dark:bg-red-950/30">
-                <p className="mb-3 text-red-800 dark:text-red-200">
-                  An error occurred while processing your request.
+              <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+                <p className="mb-3 text-sm text-zinc-300">
+                  An error occurred. Please try again.
                 </p>
                 <Button
                   disabled={status === "streaming" || status === "submitted"}
@@ -290,106 +440,13 @@ export default function Home() {
                   type="button"
                   variant="ghost"
                 >
-                  Try Again
+                  Retry
                 </Button>
               </div>
             )}
           </div>
         </ConversationContent>
       </Conversation>
-
-      {/* Input Area */}
-      <div className="px-6 py-6">
-        <div className="mx-auto max-w-4xl space-y-3">
-          {/* File Previews */}
-          {files && files.length > 0 && (
-            <div className="flex gap-2">
-              {Array.from(files).map((file, index) => (
-                <div
-                  className="group relative overflow-hidden rounded-lg bg-muted/40"
-                  key={index}
-                >
-                  {file.type.startsWith("image/") ? (
-                    <img
-                      alt={file.name}
-                      className="h-20 w-20 object-cover"
-                      src={URL.createObjectURL(file)}
-                    />
-                  ) : (
-                    <div className="flex h-20 w-20 items-center justify-center">
-                      <span className="max-w-[60px] truncate text-muted-foreground text-xs">
-                        {file.name}
-                      </span>
-                    </div>
-                  )}
-                  <button
-                    className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
-                    onClick={() => removeFile(index)}
-                    type="button"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <PromptInput onSubmit={handleSubmit}>
-            <PromptInputBody>
-              <PromptInputTextarea
-                className="text-base"
-                disabled={isLoading}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Message..."
-                value={input}
-              />
-              <input
-                accept="image/*,audio/*"
-                className="hidden"
-                multiple
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                type="file"
-              />
-            </PromptInputBody>
-            <PromptInputFooter>
-              <div className="flex items-center gap-2">
-                <Button
-                  className="h-8"
-                  onClick={() => fileInputRef.current?.click()}
-                  size="sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <Paperclip className="mr-1.5 h-4 w-4" />
-                  Attach
-                </Button>
-                <span className="text-muted-foreground text-xs">
-                  All conversations are processed locally
-                </span>
-              </div>
-              <PromptInputSubmit
-                disabled={
-                  isLoading || (!input.trim() && (!files || files.length === 0))
-                }
-                onClick={
-                  status === "submitted" || status === "streaming"
-                    ? stop
-                    : undefined
-                }
-                status={status}
-                type={
-                  status === "submitted" || status === "streaming"
-                    ? "button"
-                    : "submit"
-                }
-              >
-                <Send className="h-4 w-4" />
-              </PromptInputSubmit>
-            </PromptInputFooter>
-          </PromptInput>
-        </div>
-      </div>
-    </div>
+    </Layout>
   );
 }
