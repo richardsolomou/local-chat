@@ -82,24 +82,6 @@ export function ChatMessages({
                           <ReasoningContent>{part.text}</ReasoningContent>
                         </Reasoning>
                       );
-                    case "data-modelDownloadProgress":
-                      if (!part.data.message || status === "ready") {
-                        return null;
-                      }
-                      return (
-                        <div className="space-y-2" key={`${message.id}-${i}`}>
-                          <Response>{part.data.message}</Response>
-                          {part.data.status === "downloading" &&
-                            part.data.progress !== undefined && (
-                              <div className="-mt-2 h-2 w-full overflow-hidden rounded-full bg-zinc-800">
-                                <div
-                                  className="h-full rounded-full bg-zinc-100 transition-all duration-300"
-                                  style={{ width: `${part.data.progress}%` }}
-                                />
-                              </div>
-                            )}
-                        </div>
-                      );
                     case "file":
                       if (part.mediaType?.startsWith("image/")) {
                         return (
@@ -156,7 +138,7 @@ export function ChatMessages({
                 }
               />
               <MessageContent>
-                <div className="flex items-center gap-1.5 text-zinc-400">
+                <div className="mt-2 flex items-center gap-1.5 text-zinc-400">
                   <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]" />
                   <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]" />
                   <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400" />

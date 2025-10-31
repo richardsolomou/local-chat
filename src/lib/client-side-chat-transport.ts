@@ -14,6 +14,9 @@ import {
 } from "ai";
 import type { ExtendedBuiltInAIUIMessage } from "~/types/ui-message";
 
+const SYSTEM_PROMPT =
+  "You are a helpful AI assistant. Be concise and brief in your responses. Keep answers short and to the point.";
+
 /**
  * Client-side chat transport implementation that handles AI model communication
  * with Transformers.js using SmolLM2 as the browser-based model.
@@ -39,12 +42,95 @@ export class ClientSideChatTransport
     if (!this.worker) {
       this.worker = new Worker(
         new URL("./transformers-worker.ts", import.meta.url),
-        {
-          type: "module",
-        }
+        { type: "module" }
       );
     }
     return this.worker;
+  }
+
+  /**
+   * Initialize and return the base model with reasoning middleware.
+   */
+  private createModel() {
+    const baseModel = transformersJS("HuggingFaceTB/SmolLM2-360M-Instruct", {
+      worker: this.getWorker(),
+      dtype: "q4",
+    });
+
+    const model = wrapLanguageModel({
+      model: baseModel,
+      middleware: extractReasoningMiddleware({ tagName: "think" }),
+    });
+
+    return { baseModel, model };
+  }
+
+  /**
+   * Write download progress update to the stream.
+   */
+  private writeDownloadProgress({
+    writer,
+    id,
+    status,
+    progress,
+    message,
+  }: {
+    writer: any;
+    id: string;
+    status: "downloading" | "complete";
+    progress: number;
+    message: string;
+  }): void {
+    writer.write({
+      type: "data-modelDownloadProgress",
+      id,
+      data: { status, progress, message },
+      transient: true,
+    });
+  }
+
+  /**
+   * Stream response chunks from the model to the writer.
+   * Handles both text-delta and reasoning-delta chunk types.
+   */
+  private async streamResponse({
+    model,
+    prompt,
+    writer,
+    abortSignal,
+  }: {
+    model: ReturnType<typeof wrapLanguageModel>;
+    prompt: ReturnType<typeof convertToModelMessages>;
+    writer: any;
+    abortSignal?: AbortSignal;
+  }): Promise<void> {
+    const result = streamText({
+      model,
+      system: SYSTEM_PROMPT,
+      messages: prompt,
+      abortSignal,
+    });
+
+    for await (const chunk of result.fullStream) {
+      switch (chunk.type) {
+        case "text-delta":
+          writer.write({
+            type: "text-delta",
+            id: chunk.id,
+            delta: chunk.text,
+          });
+          break;
+        case "reasoning-delta":
+          writer.write({
+            type: "reasoning-delta",
+            id: chunk.id,
+            delta: chunk.text,
+          });
+          break;
+        default:
+          writer.write(chunk as any);
+      }
+    }
   }
 
   async sendMessages(
@@ -77,18 +163,10 @@ export class ClientSideChatTransport
     }
 
     const prompt = convertToModelMessages(messages);
+
     // Use SmolLM2-360M for fast, lightweight inference in the browser
     // Run in a Web Worker to avoid blocking the UI thread
-    const baseModel = transformersJS("HuggingFaceTB/SmolLM2-360M-Instruct", {
-      worker: this.getWorker(),
-      device: "webgpu",
-    });
-
-    // Wrap model with reasoning extraction middleware
-    const model = wrapLanguageModel({
-      model: baseModel,
-      middleware: extractReasoningMiddleware({ tagName: "think" }),
-    });
+    const { baseModel, model } = this.createModel();
 
     // Best practice: Check availability state before operations
     // States: "unavailable" | "downloadable" | "downloading" | "available"
@@ -96,37 +174,7 @@ export class ClientSideChatTransport
     if (availability === "available") {
       return createUIMessageStream<ExtendedBuiltInAIUIMessage>({
         execute: async ({ writer }) => {
-          const result = streamText({
-            model,
-            system:
-              "You are a helpful AI assistant. Be concise and brief in your responses. Keep answers short and to the point. When you need to think through a problem or reason about something, wrap your reasoning in <think> tags.",
-            messages: prompt,
-            abortSignal,
-          });
-
-          // Consume the fullStream to get all chunks including reasoning
-          for await (const chunk of result.fullStream) {
-            // Map the chunk types from fullStream to UIMessageChunk format
-            switch (chunk.type) {
-              case "text-delta":
-                writer.write({
-                  type: "text-delta",
-                  id: chunk.id,
-                  delta: chunk.text,
-                });
-                break;
-              case "reasoning-delta":
-                writer.write({
-                  type: "reasoning-delta",
-                  id: chunk.id,
-                  delta: chunk.text,
-                });
-                break;
-              // Pass through other chunk types
-              default:
-                writer.write(chunk as any);
-            }
-          }
+          await this.streamResponse({ model, prompt, writer, abortSignal });
         },
       });
     }
@@ -147,15 +195,13 @@ export class ClientSideChatTransport
               if (progressReport.progress >= 1) {
                 // Download complete - ready for inference
                 if (downloadProgressId) {
-                  writer.write({
-                    type: "data-modelDownloadProgress",
+                  this.writeDownloadProgress({
+                    writer,
                     id: downloadProgressId,
-                    data: {
-                      status: "complete",
-                      progress: 100,
-                      message:
-                        "Model finished downloading! Getting ready for inference...",
-                    },
+                    status: "complete",
+                    progress: 100,
+                    message:
+                      "Model finished downloading! Getting ready for inference...",
                   });
                 }
                 return;
@@ -164,73 +210,40 @@ export class ClientSideChatTransport
               // First progress update - initialize tracking
               if (!downloadProgressId) {
                 downloadProgressId = `download-${Date.now()}`;
-                writer.write({
-                  type: "data-modelDownloadProgress",
+                this.writeDownloadProgress({
+                  writer,
                   id: downloadProgressId,
-                  data: {
-                    status: "downloading",
-                    progress: percent,
-                    message: "Downloading browser AI model...",
-                  },
-                  transient: true,
+                  status: "downloading",
+                  progress: percent,
+                  message: "Downloading browser AI model...",
                 });
                 return;
               }
 
               // Ongoing progress updates - track download state
-              writer.write({
-                type: "data-modelDownloadProgress",
+              this.writeDownloadProgress({
+                writer,
                 id: downloadProgressId,
-                data: {
-                  status: "downloading",
-                  progress: percent,
-                  message: `Downloading browser AI model... ${percent}%`,
-                },
+                status: "downloading",
+                progress: percent,
+                message: "Downloading browser AI model...",
               });
             }
           );
 
-          // Stream the actual text response after model is ready
-          const result = streamText({
-            model,
-            system:
-              "You are a helpful AI assistant. Be concise and brief in your responses. Keep answers short and to the point. When you need to think through a problem or reason about something, wrap your reasoning in <think> tags.",
-            messages: prompt,
-            abortSignal,
-          });
-
           // Clear progress message before streaming response
           if (downloadProgressId) {
-            writer.write({
-              type: "data-modelDownloadProgress",
+            this.writeDownloadProgress({
+              writer,
               id: downloadProgressId,
-              data: { status: "complete", progress: 100, message: "" },
+              status: "complete",
+              progress: 100,
+              message: "",
             });
           }
 
-          // Consume the fullStream to get all chunks including reasoning
-          for await (const chunk of result.fullStream) {
-            // Map the chunk types from fullStream to UIMessageChunk format
-            switch (chunk.type) {
-              case "text-delta":
-                writer.write({
-                  type: "text-delta",
-                  id: chunk.id,
-                  delta: chunk.text,
-                });
-                break;
-              case "reasoning-delta":
-                writer.write({
-                  type: "reasoning-delta",
-                  id: chunk.id,
-                  delta: chunk.text,
-                });
-                break;
-              // Pass through other chunk types
-              default:
-                writer.write(chunk as any);
-            }
-          }
+          // Stream the actual text response after model is ready
+          await this.streamResponse({ model, prompt, writer, abortSignal });
         } catch (error) {
           writer.write({
             type: "data-notification",

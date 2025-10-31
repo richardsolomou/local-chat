@@ -10,7 +10,6 @@ import {
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
 import { useBrowserAISupport } from "~/hooks/use-browser-ai-support";
@@ -47,13 +46,6 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
       <ConversationContent className="flex min-h-full items-center justify-center">
         <Empty className="border-0">
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <img
-                alt="Assistant"
-                className="h-6 w-6"
-                src="/favicon-32x32.png"
-              />
-            </EmptyMedia>
             <EmptyTitle>Start a conversation</EmptyTitle>
             <EmptyDescription>
               Ask me anything or try one of these suggestions

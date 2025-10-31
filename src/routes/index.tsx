@@ -9,6 +9,7 @@ import { ChatInput } from "~/components/chat-input";
 import { ChatMessages } from "~/components/chat-messages";
 import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
+import { ModelDownloadBanner } from "~/components/model-download-banner";
 import { ClientSideChatTransport } from "~/lib/client-side-chat-transport";
 import { cn } from "~/lib/utils";
 import type { ExtendedBuiltInAIUIMessage } from "~/types/ui-message";
@@ -21,6 +22,11 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [modelDownload, setModelDownload] = useState<{
+    status: "downloading" | "complete" | "error";
+    progress: number;
+    message: string;
+  } | null>(null);
 
   const { error, status, sendMessage, messages, regenerate, stop } =
     useChat<ExtendedBuiltInAIUIMessage>({
@@ -29,6 +35,19 @@ export default function Home() {
         toast.error(error.message);
       },
       onData: (dataPart) => {
+        // Handle model download progress
+        if (dataPart.type === "data-modelDownloadProgress") {
+          setModelDownload({
+            status: dataPart.data.status,
+            progress: dataPart.data.progress ?? 0,
+            message: dataPart.data.message,
+          });
+          // Clear the download banner when complete
+          if (dataPart.data.status === "complete") {
+            setTimeout(() => setModelDownload(null), 500);
+          }
+          return;
+        }
         // Handle transient notifications
         if (dataPart.type === "data-notification") {
           if (dataPart.data.level === "error") {
@@ -73,8 +92,17 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col overflow-hidden">
+    <div className="relative flex h-screen w-full flex-col overflow-hidden">
       <Header />
+
+      {/* Model Download Banner - Absolutely positioned */}
+      {modelDownload && (
+        <ModelDownloadBanner
+          message={modelDownload.message}
+          progress={modelDownload.progress}
+          status={modelDownload.status}
+        />
+      )}
 
       {/* Main Content */}
       <main
@@ -96,7 +124,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="sticky bottom-0 z-20 bg-zinc-950">
+      <footer className="sticky bottom-0 z-20">
         <div className="mx-auto w-full max-w-3xl space-y-4 p-4">
           <ChatInput
             files={files}
