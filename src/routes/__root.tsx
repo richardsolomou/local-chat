@@ -23,7 +23,7 @@ export const Route = createRootRoute({
       ...seo({
         title: "chat.ras.sh - Local LLM Chat",
         description:
-          "Local-only LLM chat application powered by WebLLM. Your conversations stay in your browser, never sent to external servers.",
+          "Local-only LLM chat application powered by Transformers.js. Your conversations stay in your browser, never sent to external servers.",
       }),
     ],
     links: [

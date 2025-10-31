@@ -1,7 +1,7 @@
-// WebLLM with Qwen provides browser-based AI inference via WebGPU
-// Uses Qwen 0.6B for fast, lightweight inference
+// Transformers.js provides browser-based AI inference via WebGPU
+// Uses SmolLM2 for fast, lightweight inference
 export const MODEL_INFO = {
-  name: "Qwen 0.6B (WebLLM)",
+  name: "SmolLM2 360M (Transformers.js)",
   description:
-    "Uses Qwen 0.6B model running locally in your browser via WebGPU - fast, private, and works on all WebGPU-compatible browsers",
+    "Uses SmolLM2-360M model running locally in your browser via WebGPU - fast, private, and works on all WebGPU-compatible browsers",
 };

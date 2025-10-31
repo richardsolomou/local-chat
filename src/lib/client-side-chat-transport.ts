@@ -1,4 +1,7 @@
-import { doesBrowserSupportWebLLM, webLLM } from "@built-in-ai/web-llm";
+import {
+  doesBrowserSupportTransformersJS,
+  transformersJS,
+} from "@built-in-ai/transformers-js";
 import {
   type ChatRequestOptions,
   type ChatTransport,
@@ -13,7 +16,7 @@ import type { ExtendedBuiltInAIUIMessage } from "~/types/ui-message";
 
 /**
  * Client-side chat transport implementation that handles AI model communication
- * with WebLLM using Qwen as the browser-based model.
+ * with Transformers.js using SmolLM2 as the browser-based model.
  *
  * Best practices implemented:
  * - Web Worker for offloading heavy computation from UI thread
@@ -29,14 +32,17 @@ export class ClientSideChatTransport
   private worker: Worker | null = null;
 
   /**
-   * Get or create the WebLLM worker instance.
+   * Get or create the Transformers.js worker instance.
    * Using a worker offloads heavy model computation to a different thread than the UI.
    */
   private getWorker(): Worker {
     if (!this.worker) {
-      this.worker = new Worker(new URL("./webllm-worker.ts", import.meta.url), {
-        type: "module",
-      });
+      this.worker = new Worker(
+        new URL("./transformers-worker.ts", import.meta.url),
+        {
+          type: "module",
+        }
+      );
     }
     return this.worker;
   }
@@ -54,14 +60,14 @@ export class ClientSideChatTransport
     const { messages, abortSignal } = options;
 
     // Best practice: Verify browser capability before attempting operations
-    if (!doesBrowserSupportWebLLM()) {
+    if (!doesBrowserSupportTransformersJS()) {
       return createUIMessageStream<ExtendedBuiltInAIUIMessage>({
         execute: ({ writer }) => {
           writer.write({
             type: "data-notification",
             data: {
               message:
-                "WebGPU is not supported in this browser. Please use a WebGPU-compatible browser.",
+                "WebGPU/WebAssembly is not supported in this browser. Please use a compatible browser.",
               level: "error",
             },
             transient: true,
@@ -71,10 +77,11 @@ export class ClientSideChatTransport
     }
 
     const prompt = convertToModelMessages(messages);
-    // Use Qwen 0.6B for fast, lightweight inference in the browser
+    // Use SmolLM2-360M for fast, lightweight inference in the browser
     // Run in a Web Worker to avoid blocking the UI thread
-    const baseModel = webLLM("Qwen3-0.6B-q0f16-MLC", {
+    const baseModel = transformersJS("HuggingFaceTB/SmolLM2-360M-Instruct", {
       worker: this.getWorker(),
+      device: "webgpu",
     });
 
     // Wrap model with reasoning extraction middleware
@@ -133,56 +140,55 @@ export class ClientSideChatTransport
 
           // Best practice: Use createSessionWithProgress for monitoring initialization
           // Critical for UX, especially with large model downloads
-          await baseModel.createSessionWithProgress((progressReport) => {
-            const percent = Math.round(progressReport.progress * 100);
+          await baseModel.createSessionWithProgress(
+            (progressReport: { progress: number }) => {
+              const percent = Math.round(progressReport.progress * 100);
 
-            if (progressReport.progress >= 1) {
-              // Download complete - ready for inference
-              if (downloadProgressId) {
+              if (progressReport.progress >= 1) {
+                // Download complete - ready for inference
+                if (downloadProgressId) {
+                  writer.write({
+                    type: "data-modelDownloadProgress",
+                    id: downloadProgressId,
+                    data: {
+                      status: "complete",
+                      progress: 100,
+                      message:
+                        "Model finished downloading! Getting ready for inference...",
+                    },
+                  });
+                }
+                return;
+              }
+
+              // First progress update - initialize tracking
+              if (!downloadProgressId) {
+                downloadProgressId = `download-${Date.now()}`;
                 writer.write({
                   type: "data-modelDownloadProgress",
                   id: downloadProgressId,
                   data: {
-                    status: "complete",
-                    progress: 100,
-                    message:
-                      "Model finished downloading! Getting ready for inference...",
+                    status: "downloading",
+                    progress: percent,
+                    message: "Downloading browser AI model...",
                   },
+                  transient: true,
                 });
+                return;
               }
-              return;
-            }
 
-            // First progress update - initialize tracking
-            if (!downloadProgressId) {
-              downloadProgressId = `download-${Date.now()}`;
+              // Ongoing progress updates - track download state
               writer.write({
                 type: "data-modelDownloadProgress",
                 id: downloadProgressId,
                 data: {
                   status: "downloading",
                   progress: percent,
-                  message:
-                    progressReport.text || "Downloading browser AI model...",
+                  message: `Downloading browser AI model... ${percent}%`,
                 },
-                transient: true,
               });
-              return;
             }
-
-            // Ongoing progress updates - track download state
-            writer.write({
-              type: "data-modelDownloadProgress",
-              id: downloadProgressId,
-              data: {
-                status: "downloading",
-                progress: percent,
-                message:
-                  progressReport.text ||
-                  `Downloading browser AI model... ${percent}%`,
-              },
-            });
-          });
+          );
 
           // Stream the actual text response after model is ready
           const result = streamText({

@@ -4,7 +4,7 @@
 
 ## Overview
 
-A privacy-first chat interface powered by WebLLM and Qwen. All inference happens locally on your device - your conversations never leave your browser.
+A privacy-first chat interface powered by Transformers.js and SmolLM2. All inference happens locally on your device - your conversations never leave your browser.
 
 **Supported browsers:**
 - Chrome 113+ (WebGPU support)
@@ -23,9 +23,9 @@ A privacy-first chat interface powered by WebLLM and Qwen. All inference happens
 ## Tech Stack
 
 - [TanStack Start](https://tanstack.com/start) - Full-stack React framework
-- [@built-in-ai/web-llm](https://github.com/jakobhoeg/built-in-ai/tree/main/packages/web-llm) - WebLLM integration for AI SDK
+- [@built-in-ai/transformers-js](https://github.com/jakobhoeg/built-in-ai/tree/main/packages/transformers-js) - Transformers.js integration for AI SDK
 - [AI SDK](https://ai-sdk.dev/) - Streaming and message handling
-- [Qwen 0.6B](https://huggingface.co/Qwen) - Lightweight language model
+- [SmolLM2-360M](https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct) - Lightweight language model
 - React 19, TypeScript, Tailwind CSS
 
 ## Quick Start
@@ -42,9 +42,9 @@ Open http://localhost:3000 in any WebGPU-compatible browser.
 
 ## How It Works
 
-This app uses WebLLM to run the Qwen 0.6B language model entirely in your browser via WebGPU. On first use, the model (~400MB) will be downloaded and cached locally.
+This app uses Transformers.js to run the SmolLM2-360M language model entirely in your browser via WebGPU. On first use, the model will be downloaded and cached locally.
 
-All processing happens on your device using WebGPU for hardware acceleration. The model runs in a dedicated Web Worker to avoid blocking the UI thread, ensuring smooth performance. No data is sent to external servers. The Qwen 0.6B model provides a perfect balance between performance and capability for browser-based inference.
+All processing happens on your device using WebGPU for hardware acceleration. The model runs in a dedicated Web Worker to avoid blocking the UI thread, ensuring smooth performance. No data is sent to external servers. The SmolLM2-360M model provides a perfect balance between performance and capability for browser-based inference.
 
 ## Project Structure
 
@@ -61,7 +61,7 @@ src/
 │   └── footer.tsx              # App footer
 ├── lib/
 │   ├── client-side-chat-transport.ts  # Browser AI integration
-│   └── webllm-worker.ts        # Web Worker for WebLLM
+│   └── transformers-worker.ts  # Web Worker for Transformers.js
 ├── hooks/
 │   └── use-browser-ai-support.ts      # Browser compatibility check
 └── types/

@@ -1,4 +1,4 @@
-import { doesBrowserSupportWebLLM } from "@built-in-ai/web-llm";
+import { doesBrowserSupportTransformersJS } from "@built-in-ai/transformers-js";
 import { useEffect, useState } from "react";
 
 export function useBrowserAISupport() {
@@ -7,7 +7,7 @@ export function useBrowserAISupport() {
   >(null);
 
   useEffect(() => {
-    setBrowserSupportsModel(doesBrowserSupportWebLLM());
+    setBrowserSupportsModel(doesBrowserSupportTransformersJS());
   }, []);
 
   return browserSupportsModel;
