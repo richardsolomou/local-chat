@@ -1,4 +1,4 @@
-import { builtInAI, doesBrowserSupportBuiltInAI } from "@built-in-ai/core";
+import { builtInAI } from "@built-in-ai/core";
 import {
   type ChatRequestOptions,
   type ChatTransport,
@@ -19,7 +19,6 @@ const SYSTEM_PROMPT =
  * using Chrome's built-in Prompt API.
  *
  * Best practices implemented:
- * - Browser capability checks before operations
  * - Proper availability state management
  * - Progress tracking for model downloads
  *
@@ -121,23 +120,6 @@ export class ClientSideChatTransport
     } & ChatRequestOptions
   ): Promise<ReadableStream<UIMessageChunk>> {
     const { messages, abortSignal } = options;
-
-    // Best practice: Verify browser capability before attempting operations
-    if (!doesBrowserSupportBuiltInAI()) {
-      return createUIMessageStream<ExtendedBuiltInAIUIMessage>({
-        execute: ({ writer }) => {
-          writer.write({
-            type: "data-notification",
-            data: {
-              message:
-                "Browser AI is not supported in this browser. Please use Chrome 128+ or Edge Dev with Prompt API enabled.",
-              level: "error",
-            },
-            transient: true,
-          });
-        },
-      });
-    }
 
     const prompt = convertToModelMessages(messages);
 

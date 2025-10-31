@@ -4,7 +4,7 @@ import {
   ConversationScrollButton,
 } from "~/components/ai-elements/conversation";
 import { Suggestion } from "~/components/ai-elements/suggestion";
-import { Alert, AlertDescription } from "~/components/ui/alert";
+import { BrowserUnsupportedDialog } from "~/components/browser-unsupported-dialog";
 import {
   Empty,
   EmptyContent,
@@ -31,17 +31,8 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
 
   return (
     <Conversation>
-      <ConversationScrollButton />
-      {browserSupportsModel === false && (
-        <div className="-translate-x-1/2 absolute top-4 left-1/2 z-10 w-full max-w-2xl px-4">
-          <Alert variant="destructive">
-            <AlertDescription>
-              Your browser doesn't support the Prompt API, which is required for running
-              AI models. Please use Chrome 128+ or Edge Dev with Prompt API enabled.
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+      <BrowserUnsupportedDialog />
+
       <ConversationContent className="flex min-h-full items-center justify-center">
         <Empty className="border-0">
           <EmptyHeader>
@@ -64,6 +55,8 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
           </EmptyContent>
         </Empty>
       </ConversationContent>
+
+      <ConversationScrollButton />
     </Conversation>
   );
 }
