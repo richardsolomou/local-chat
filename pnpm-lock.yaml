@@ -11,9 +11,9 @@ importers:
       '@ai-sdk/react':
         specifier: ^2.0.83
         version: 2.0.83(react@19.2.0)(zod@4.1.12)
-      '@built-in-ai/web-llm':
-        specifier: ^0.3.1
-        version: 0.3.1(ai@5.0.83(zod@4.1.12))
+      '@built-in-ai/core':
+        specifier: ^2.0.0
+        version: 2.0.0(ai@5.0.83(zod@4.1.12))
       '@fontsource-variable/geist':
         specifier: ^5.2.8
         version: 5.2.8
@@ -390,8 +390,8 @@ packages:
   '@braintree/sanitize-url@7.1.1':
     resolution: {integrity: sha512-i1L7noDNxtFyL5DmZafWy1wRVhGehQmzZaz1HiN5e7iylJMSZR7ekOV7NsIqa5qBldlLrsKv4HbgFUVlQrz8Mw==}
 
-  '@built-in-ai/web-llm@0.3.1':
-    resolution: {integrity: sha512-gZBxiz/x/5+3m9SEFn+2t0P2I+GEn/0tDKeDCzUc/PJEQ6a6eIG8SO+RtRgWcxRRshQJihDG7nqEa69Ouw7Juw==}
+  '@built-in-ai/core@2.0.0':
+    resolution: {integrity: sha512-bCXQtkTHbB2aPAAB71p9riFljB1NGaurwhN+cu7cZoxoRIoDrIfI/lMFQ1XGg+ftXRWPkOYU6va5VhwY9XYw3g==}
     peerDependencies:
       ai: '>=5.0.0'
 
@@ -623,11 +623,11 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
+  '@mediapipe/tasks-text@0.10.22-rc.20250304':
+    resolution: {integrity: sha512-J2AFxsh+Pra2OZXf+T4iC8p4JeLyLjg7wU7l2mxcNPNY13wmVhYADxkOLSQq7BPRuXj5aBj7A98dBgZh++s6OQ==}
+
   '@mermaid-js/parser@0.6.3':
     resolution: {integrity: sha512-lnjOhe7zyHjc+If7yT4zoedx2vo4sHaTmtkl1+or8BRTnCtDmcTpAjpzDSfCZrshM5bCoz0GyidzadJAH1xobA==}
-
-  '@mlc-ai/web-llm@0.2.79':
-    resolution: {integrity: sha512-Hy1ZHQ0o2bZGZoVnGK48+fts/ZSKwLe96xjvqL/6C59Mem9HoHTcFE07NC2E23mRmhd01tL655N6CPeYmwWgwQ==}
 
   '@oozcitak/dom@1.15.10':
     resolution: {integrity: sha512-0JT29/LaxVgRcGKvHmSrUTEvZ8BXvZhGl2LASRUgHqDTC1M5g1pLmVv56IYNyt3bG2CUjDkc67wnyZC14pbQrQ==}
@@ -2792,10 +2792,6 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
-  loglevel@1.9.2:
-    resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
-    engines: {node: '>= 0.6.0'}
-
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
@@ -4032,9 +4028,9 @@ snapshots:
 
   '@braintree/sanitize-url@7.1.1': {}
 
-  '@built-in-ai/web-llm@0.3.1(ai@5.0.83(zod@4.1.12))':
+  '@built-in-ai/core@2.0.0(ai@5.0.83(zod@4.1.12))':
     dependencies:
-      '@mlc-ai/web-llm': 0.2.79
+      '@mediapipe/tasks-text': 0.10.22-rc.20250304
       ai: 5.0.83(zod@4.1.12)
 
   '@chevrotain/cst-dts-gen@11.0.3':
@@ -4205,13 +4201,11 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@mediapipe/tasks-text@0.10.22-rc.20250304': {}
+
   '@mermaid-js/parser@0.6.3':
     dependencies:
       langium: 3.3.1
-
-  '@mlc-ai/web-llm@0.2.79':
-    dependencies:
-      loglevel: 1.9.2
 
   '@oozcitak/dom@1.15.10':
     dependencies:
@@ -6516,8 +6510,6 @@ snapshots:
   lodash-es@4.17.21: {}
 
   lodash@4.17.21: {}
-
-  loglevel@1.9.2: {}
 
   longest-streak@3.1.0: {}
 

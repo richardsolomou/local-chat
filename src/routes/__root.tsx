@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import type * as React from "react";
+import { Toaster } from "sonner";
 import { DefaultCatchBoundary } from "~/components/default-catch-boundary";
 import { NotFound } from "~/components/not-found";
 import { seo } from "~/lib/seo";
@@ -17,9 +18,9 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       ...seo({
-        title: "ras.sh",
+        title: "chat.ras.sh - Local LLM Chat",
         description:
-          "A collection of side projects, experiments, and tools built with modern technologies",
+          "Local-only LLM chat application powered by WebLLM. Your conversations stay in your browser, never sent to external servers.",
       }),
     ],
     links: [
@@ -58,6 +59,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="dark min-h-dvh font-sans text-foreground antialiased">
         {children}
+        <Toaster position="top-center" />
         <Scripts />
       </body>
     </html>
