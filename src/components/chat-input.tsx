@@ -1,5 +1,5 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
-import { Paperclip, Send } from "lucide-react";
+import { Paperclip } from "lucide-react";
 import { useRef } from "react";
 import {
   PromptInput,
@@ -43,7 +43,9 @@ export function ChatInput({
 }: ChatInputProps) {
   const fileUploadRef = useRef<FileUploadRef>(null);
   const browserSupportsModel = useBrowserAISupport();
-  const isDisabled = browserSupportsModel === false || isLoading;
+  const isDisabled = browserSupportsModel === false;
+  // Only disable inputs when submitting (not when streaming), so users can type next message
+  const isInputDisabled = isDisabled || status === "submitted";
 
   return (
     <div className="space-y-3">
@@ -64,7 +66,7 @@ export function ChatInput({
         )}
 
       <FileUpload
-        disabled={isDisabled}
+        disabled={isInputDisabled}
         files={files}
         onFilesChange={onFilesChange}
         ref={fileUploadRef}
@@ -75,7 +77,7 @@ export function ChatInput({
           <PromptInputTextarea
             autoFocus
             className="text-base!"
-            disabled={isDisabled}
+            disabled={isInputDisabled}
             onChange={(e) => onInputChange(e.target.value)}
             placeholder="Ask anything..."
             value={input}
@@ -83,7 +85,7 @@ export function ChatInput({
         </PromptInputBody>
         <PromptInputFooter>
           <Button
-            disabled={isDisabled}
+            disabled={isInputDisabled}
             onClick={() => fileUploadRef.current?.openFileDialog()}
             size="icon"
             type="button"
@@ -93,7 +95,10 @@ export function ChatInput({
           </Button>
           <PromptInputSubmit
             disabled={
-              isDisabled || (!input.trim() && (!files || files.length === 0))
+              status === "submitted" || status === "streaming"
+                ? false
+                : isDisabled ||
+                  (!input.trim() && (!files || files.length === 0))
             }
             onClick={
               status === "submitted" || status === "streaming"
@@ -106,9 +111,7 @@ export function ChatInput({
                 ? "button"
                 : "submit"
             }
-          >
-            <Send className="h-4 w-4" />
-          </PromptInputSubmit>
+          />
         </PromptInputFooter>
       </PromptInput>
     </div>

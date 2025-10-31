@@ -83,6 +83,24 @@ export class ClientSideChatTransport
     writer: any;
     abortSignal?: AbortSignal;
   }): Promise<void> {
+    let textId: string | undefined;
+    let previousText = "";
+    let aborted = false;
+
+    // Set up abort listener to force end the stream
+    const abortHandler = () => {
+      aborted = true;
+      // End the text stream immediately
+      if (textId) {
+        writer.write({
+          type: "text-end",
+          id: textId,
+        });
+      }
+    };
+
+    abortSignal?.addEventListener("abort", abortHandler);
+
     const result = streamObject({
       model,
       system: SYSTEM_PROMPT,
@@ -91,43 +109,77 @@ export class ClientSideChatTransport
       abortSignal,
     });
 
-    let textId: string | undefined;
-    let previousText = "";
+    try {
+      for await (const partialObject of result.partialObjectStream) {
+        // Check if aborted
+        if (aborted || abortSignal?.aborted) {
+          break;
+        }
 
-    for await (const partialObject of result.partialObjectStream) {
-      if (partialObject.response && partialObject.response !== previousText) {
-        if (!textId) {
-          textId = `text-${Date.now()}`;
-          writer.write({
-            type: "text-start",
-            id: textId,
-          });
+        if (partialObject.response && partialObject.response !== previousText) {
+          if (!textId) {
+            textId = `text-${Date.now()}`;
+            writer.write({
+              type: "text-start",
+              id: textId,
+            });
+          }
+          const delta = partialObject.response.slice(previousText.length);
+          if (delta) {
+            writer.write({
+              type: "text-delta",
+              id: textId,
+              delta,
+            });
+          }
+          previousText = partialObject.response;
         }
-        const delta = partialObject.response.slice(previousText.length);
-        if (delta) {
-          writer.write({
-            type: "text-delta",
-            id: textId,
-            delta,
-          });
-        }
-        previousText = partialObject.response;
       }
-    }
 
-    // End the text stream
-    if (textId) {
-      writer.write({
-        type: "text-end",
-        id: textId,
-      });
-    }
+      // End the text stream (only if not already aborted)
+      if (textId && !aborted) {
+        writer.write({
+          type: "text-end",
+          id: textId,
+        });
+      }
 
-    // Send suggestions after the response is complete
-    const finalObject = await result.object;
-    if (finalObject.suggestions && finalObject.suggestions.length > 0) {
-      // Update Zustand store with suggestions
-      useSuggestionsStore.getState().setSuggestions(finalObject.suggestions);
+      // Send suggestions after the response is complete (skip if aborted)
+      if (!aborted) {
+        const finalObject = await result.object;
+        if (finalObject.suggestions && finalObject.suggestions.length > 0) {
+          // Update Zustand store with suggestions
+          useSuggestionsStore
+            .getState()
+            .setSuggestions(finalObject.suggestions);
+        }
+      }
+    } catch (error) {
+      // If aborted, end the text stream gracefully (only if not already ended)
+      if (textId && !aborted) {
+        writer.write({
+          type: "text-end",
+          id: textId,
+        });
+      }
+      // Re-throw if it's not an abort-related error and not already aborted
+      if (!aborted) {
+        const isAbortError =
+          error instanceof Error &&
+          (error.name === "AbortError" ||
+            error.message.includes("aborted") ||
+            error.message.includes("abort"));
+
+        if (!isAbortError) {
+          throw error;
+        }
+      }
+      // Abort errors are silently handled (stream already ended above)
+    } finally {
+      // Clean up abort listener
+      if (abortSignal) {
+        abortSignal.removeEventListener("abort", abortHandler);
+      }
     }
   }
 

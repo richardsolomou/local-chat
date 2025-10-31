@@ -66,7 +66,13 @@ export default function Home() {
 
   // Send a message
   const handleSubmit = () => {
-    if ((input.trim() || files) && status === "ready") {
+    // Allow submission when ready, or after an error/stop (not during submit/stream)
+    const canSubmit =
+      (input.trim() || files) &&
+      status !== "submitted" &&
+      status !== "streaming";
+
+    if (canSubmit) {
       sendMessage({
         text: input,
         files,
@@ -77,7 +83,8 @@ export default function Home() {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    if (status === "ready") {
+    // Allow submission when not actively submitting or streaming
+    if (status !== "submitted" && status !== "streaming") {
       sendMessage({
         text: suggestion,
         files,
