@@ -145,6 +145,7 @@ function InputGroupInput({
 
 function InputGroupTextarea({
   className,
+  ref,
   ...props
 }: React.ComponentProps<"textarea">) {
   return (
@@ -154,6 +155,7 @@ function InputGroupTextarea({
         className
       )}
       data-slot="input-group-control"
+      ref={ref}
       {...props}
     />
   );

@@ -1,7 +1,7 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { BuiltInAIUIMessage } from "@built-in-ai/core";
 import { Paperclip, Trash2 } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   PromptInput,
   PromptInputBody,
@@ -57,10 +57,24 @@ export function ChatInput({
   hasMessages,
 }: ChatInputProps) {
   const fileUploadRef = useRef<FileUploadRef>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const prevStatusRef = useRef(status);
   const browserSupportsModel = useBrowserAISupport();
   const isDisabled = browserSupportsModel === false;
   // Only disable inputs when submitting (not when streaming), so users can type next message
   const isInputDisabled = isDisabled || status === "submitted";
+
+  // Autofocus the textarea after a message finishes
+  useEffect(() => {
+    if (
+      prevStatusRef.current === "streaming" &&
+      status === "ready" &&
+      textareaRef.current
+    ) {
+      textareaRef.current.focus();
+    }
+    prevStatusRef.current = status;
+  }, [status]);
 
   return (
     <div className="space-y-3">
@@ -97,6 +111,7 @@ export function ChatInput({
               disabled={isInputDisabled}
               onChange={(e) => onInputChange(e.target.value)}
               placeholder="Ask anything..."
+              ref={textareaRef}
               value={input}
             />
           </PromptInputBody>

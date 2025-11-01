@@ -780,12 +780,13 @@ export type PromptInputTextareaProps = ComponentProps<
   typeof InputGroupTextarea
 >;
 
-export const PromptInputTextarea = ({
+export function PromptInputTextarea({
   onChange,
   className,
   placeholder = "What would you like to know?",
+  ref,
   ...props
-}: PromptInputTextareaProps) => {
+}: PromptInputTextareaProps) {
   const controller = useOptionalPromptInputController();
   const attachments = usePromptInputAttachments();
   const [isComposing, setIsComposing] = useState(false);
@@ -861,11 +862,12 @@ export const PromptInputTextarea = ({
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}
       placeholder={placeholder}
+      ref={ref}
       {...props}
       {...controlledProps}
     />
   );
-};
+}
 
 export type PromptInputHeaderProps = Omit<
   ComponentProps<typeof InputGroupAddon>,
