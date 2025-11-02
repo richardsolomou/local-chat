@@ -1,6 +1,6 @@
 {
-  "name": "chat.ras.sh",
-  "short_name": "chat.ras.sh",
+  "name": "local-chat.ras.sh",
+  "short_name": "local-chat.ras.sh",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

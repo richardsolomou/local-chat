@@ -12,7 +12,7 @@ export function Header() {
       <header className="sticky top-0 z-20 md:hidden">
         <div className="flex h-14 w-full items-center justify-between border-zinc-800 border-b px-4">
           <h1 className="font-bold font-mono text-xl text-zinc-100">
-            chat.ras.sh
+            local-chat.ras.sh
           </h1>
 
           <Button
@@ -43,7 +43,7 @@ export function Header() {
                 <a
                   data-umami-event="github_link_clicked"
                   data-umami-event-location="mobile_menu"
-                  href="https://github.com/ras-sh/chat"
+                  href="https://github.com/ras-sh/local-chat"
                   rel="noopener noreferrer"
                   target="_blank"
                 >
@@ -61,14 +61,14 @@ export function Header() {
         <div className="mx-auto w-full max-w-3xl space-y-4 p-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h1 className="font-bold font-mono text-4xl text-zinc-100">
-              chat.ras.sh
+              local-chat.ras.sh
             </h1>
 
             <Button asChild>
               <a
                 data-umami-event="github_link_clicked"
                 data-umami-event-location="desktop_header"
-                href="https://github.com/ras-sh/chat"
+                href="https://github.com/ras-sh/local-chat"
                 rel="noopener noreferrer"
                 target="_blank"
               >

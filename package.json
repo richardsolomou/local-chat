@@ -1,5 +1,5 @@
 {
-  "name": "@ras-sh/chat",
+  "name": "@ras-sh/local-chat",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -14,14 +14,14 @@
     "browser",
     "built-in-ai"
   ],
-  "homepage": "https://chat.ras.sh",
+  "homepage": "https://local-chat.ras.sh",
   "bugs": {
-    "url": "https://github.com/ras-sh/chat/issues",
+    "url": "https://github.com/ras-sh/local-chat/issues",
     "email": "hi@ras.sh"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ras-sh/chat"
+    "url": "https://github.com/ras-sh/local-chat"
   },
   "license": "MIT",
   "author": {
