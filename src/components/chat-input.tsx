@@ -1,5 +1,18 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { BuiltInAIUIMessage } from "@built-in-ai/core";
+import { usePostHog } from "@posthog/react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@ras-sh/ui/alert-dialog";
+import { Button } from "@ras-sh/ui/button";
 import { Paperclip, Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import {
@@ -11,18 +24,6 @@ import {
 } from "~/components/ai-elements/prompt-input";
 import { Suggestion, Suggestions } from "~/components/ai-elements/suggestion";
 import { FileUpload, type FileUploadRef } from "~/components/file-upload";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
 import { useBrowserAISupport } from "~/hooks/use-browser-ai-support";
 
 type ChatInputProps = {
@@ -56,6 +57,7 @@ export function ChatInput({
   onClearConversation,
   hasMessages,
 }: ChatInputProps) {
+  const posthog = usePostHog();
   const fileUploadRef = useRef<FileUploadRef>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const prevStatusRef = useRef(status);
@@ -79,18 +81,21 @@ export function ChatInput({
   return (
     <div className="space-y-3">
       {/* Suggestions from model */}
-      {showSuggestions &&
+      {!!showSuggestions &&
         suggestions.length > 0 &&
         !isLoading &&
         browserSupportsModel !== false && (
           <Suggestions>
             {suggestions.map((suggestion, index) => (
               <Suggestion
-                data-umami-event="suggestion_clicked"
-                data-umami-event-index={index}
-                data-umami-event-source="chat_input"
                 key={index}
-                onClick={onSuggestionClick}
+                onClick={(s) => {
+                  posthog?.capture("suggestion_clicked", {
+                    index,
+                    source: "chat_input",
+                  });
+                  onSuggestionClick(s);
+                }}
                 suggestion={suggestion}
               />
             ))}
@@ -118,21 +123,25 @@ export function ChatInput({
           <PromptInputFooter>
             <div className="flex items-center gap-1">
               <Button
-                data-umami-event="file_upload_opened"
                 disabled={isInputDisabled}
-                onClick={() => fileUploadRef.current?.openFileDialog()}
+                onClick={() => {
+                  posthog?.capture("file_upload_opened");
+                  fileUploadRef.current?.openFileDialog();
+                }}
                 size="icon"
                 type="button"
                 variant="ghost"
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
-              {hasMessages && onClearConversation && (
+              {!!hasMessages && !!onClearConversation && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
-                      data-umami-event="clear_conversation_button_clicked"
                       disabled={isInputDisabled}
+                      onClick={() =>
+                        posthog?.capture("clear_conversation_button_clicked")
+                      }
                       size="icon"
                       type="button"
                       variant="ghost"
@@ -151,8 +160,10 @@ export function ChatInput({
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
-                        data-umami-event="conversation_cleared"
-                        onClick={onClearConversation}
+                        onClick={() => {
+                          posthog?.capture("conversation_cleared");
+                          onClearConversation();
+                        }}
                       >
                         Clear
                       </AlertDialogAction>
@@ -162,11 +173,6 @@ export function ChatInput({
               )}
             </div>
             <PromptInputSubmit
-              data-umami-event={
-                status === "submitted" || status === "streaming"
-                  ? "message_stopped"
-                  : undefined
-              }
               disabled={
                 status === "submitted" || status === "streaming"
                   ? false
@@ -176,7 +182,7 @@ export function ChatInput({
               onClick={
                 status === "submitted" || status === "streaming"
                   ? stop
-                  : undefined
+                  : () => {}
               }
               status={status}
               type={

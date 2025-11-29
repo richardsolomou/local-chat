@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [
     tsConfigPaths(),
     tanstackStart(),
-    nitro({ config: { preset: "vercel" } }),
+    nitro({ preset: "vercel" }),
     viteReact(),
     tailwindcss(),
   ],
@@ -20,6 +20,6 @@ export default defineConfig({
     },
   },
   ssr: {
-    noExternal: ["streamdown"],
+    noExternal: ["streamdown", "posthog-js", "@posthog/react"],
   },
 });

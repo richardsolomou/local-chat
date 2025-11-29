@@ -3,7 +3,7 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
+} from "@ras-sh/ui/alert-dialog";
 
 type ModelDownloadBannerProps = {
   status: "downloading" | "complete" | "error";

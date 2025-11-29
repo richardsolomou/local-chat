@@ -1,3 +1,11 @@
+import { usePostHog } from "@posthog/react";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@ras-sh/ui/empty";
 import {
   Conversation,
   ConversationContent,
@@ -5,13 +13,6 @@ import {
 } from "~/components/ai-elements/conversation";
 import { Suggestion } from "~/components/ai-elements/suggestion";
 import { BrowserUnsupportedDialog } from "~/components/browser-unsupported-dialog";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "~/components/ui/empty";
 import { useBrowserAISupport } from "~/hooks/use-browser-ai-support";
 
 type ChatEmptyStateProps = {
@@ -26,6 +27,7 @@ const DEFAULT_SUGGESTIONS = [
 ];
 
 export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
+  const posthog = usePostHog();
   const browserSupportsModel = useBrowserAISupport();
   const isDisabled = browserSupportsModel === false;
 
@@ -45,12 +47,15 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
             <div className="flex w-full flex-wrap justify-center gap-2">
               {DEFAULT_SUGGESTIONS.map((suggestion, index) => (
                 <Suggestion
-                  data-umami-event="suggestion_clicked"
-                  data-umami-event-index={index}
-                  data-umami-event-source="empty_state"
                   disabled={isDisabled}
                   key={index}
-                  onClick={onSuggestionClick}
+                  onClick={(s) => {
+                    posthog?.capture("suggestion_clicked", {
+                      index,
+                      source: "empty_state",
+                    });
+                    onSuggestionClick(s);
+                  }}
                   suggestion={suggestion}
                 />
               ))}
@@ -59,7 +64,7 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
         </Empty>
       </ConversationContent>
 
-      <ConversationScrollButton data-umami-event="scroll_to_bottom_clicked" />
+      <ConversationScrollButton />
     </Conversation>
   );
 }

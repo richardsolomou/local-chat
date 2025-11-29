@@ -1,4 +1,6 @@
 import type { BuiltInAIUIMessage } from "@built-in-ai/core";
+import { usePostHog } from "@posthog/react";
+import { Button } from "@ras-sh/ui/button";
 import type { ChatStatus } from "ai";
 import { User } from "lucide-react";
 import {
@@ -12,7 +14,6 @@ import {
   MessageContent,
 } from "~/components/ai-elements/message";
 import { Response } from "~/components/ai-elements/response";
-import { Button } from "~/components/ui/button";
 
 type ChatMessagesProps = {
   messages: BuiltInAIUIMessage[];
@@ -27,9 +28,11 @@ export function ChatMessages({
   error,
   onRegenerate,
 }: ChatMessagesProps) {
+  const posthog = usePostHog();
+
   return (
     <Conversation>
-      <ConversationScrollButton data-umami-event="scroll_to_bottom_clicked" />
+      <ConversationScrollButton />
       <ConversationContent>
         <div className="space-y-4 p-4">
           {messages.map((message) => (
@@ -86,7 +89,7 @@ export function ChatMessages({
                               <track kind="captions" />
                               Your browser does not support the audio element.
                             </audio>
-                            {part.filename && (
+                            {!!part.filename && (
                               <p className="text-sm text-zinc-400">
                                 {part.filename}
                               </p>
@@ -126,15 +129,17 @@ export function ChatMessages({
           )}
 
           {/* Error State */}
-          {error && (
+          {!!error && (
             <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4">
               <p className="mb-3 text-sm text-zinc-300">
                 An error occurred. Please try again.
               </p>
               <Button
-                data-umami-event="message_regenerated"
                 disabled={status === "streaming" || status === "submitted"}
-                onClick={onRegenerate}
+                onClick={() => {
+                  posthog?.capture("message_regenerated");
+                  onRegenerate();
+                }}
                 size="sm"
                 type="button"
               >

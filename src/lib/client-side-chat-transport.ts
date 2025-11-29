@@ -6,6 +6,7 @@ import {
   createUIMessageStream,
   streamObject,
   type UIMessageChunk,
+  type UIMessageStreamWriter,
 } from "ai";
 import { z } from "zod";
 import { useSuggestionsStore } from "~/stores/suggestions-store";
@@ -53,7 +54,7 @@ export class ClientSideChatTransport
     progress,
     message,
   }: {
-    writer: any;
+    writer: UIMessageStreamWriter<BuiltInAIUIMessage>;
     id: string;
     status: "downloading" | "complete";
     progress: number;
@@ -79,7 +80,7 @@ export class ClientSideChatTransport
   }: {
     model: ReturnType<typeof builtInAI>;
     prompt: ReturnType<typeof convertToModelMessages>;
-    writer: any;
+    writer: UIMessageStreamWriter<BuiltInAIUIMessage>;
     abortSignal?: AbortSignal;
   }): Promise<void> {
     let textId: string | undefined;

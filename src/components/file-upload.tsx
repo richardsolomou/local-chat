@@ -1,3 +1,4 @@
+import { usePostHog } from "@posthog/react";
 import { X } from "lucide-react";
 import { type ReactNode, type RefObject, useImperativeHandle } from "react";
 import { useDropzone } from "react-dropzone";
@@ -20,6 +21,7 @@ export const FileUpload = ({
   children,
   ref,
 }: FileUploadProps & { ref?: RefObject<FileUploadRef | null> }) => {
+  const posthog = usePostHog();
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     accept: {
       "image/*": [],
@@ -70,14 +72,14 @@ export const FileUpload = ({
       <input {...getInputProps()} />
 
       {/* Drag overlay */}
-      {isDragActive && (
+      {!!isDragActive && (
         <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center rounded-lg border-2 border-orange-300 border-dashed bg-orange-300/10">
           <p className="font-medium text-lg text-orange-300">Drop files here</p>
         </div>
       )}
 
       {/* File Previews */}
-      {files && files.length > 0 && (
+      {!!files && files.length > 0 && (
         <div className="mb-3 flex gap-2">
           {Array.from(files).map((file, index) => (
             <div
@@ -99,8 +101,10 @@ export const FileUpload = ({
               )}
               <button
                 className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
-                data-umami-event="file_removed"
-                onClick={() => removeFile(index)}
+                onClick={() => {
+                  posthog?.capture("file_removed");
+                  removeFile(index);
+                }}
                 type="button"
               >
                 <X className="h-3 w-3" />

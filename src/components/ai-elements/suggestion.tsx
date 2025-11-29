@@ -1,9 +1,9 @@
 "use client";
 
+import { Button } from "@ras-sh/ui/button";
+import { ScrollArea, ScrollBar } from "@ras-sh/ui/scroll-area";
+import { cn } from "@ras-sh/ui/utils";
 import type { ComponentProps } from "react";
-import { Button } from "~/components/ui/button";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import { cn } from "~/lib/utils";
 
 export type SuggestionsProps = ComponentProps<typeof ScrollArea>;
 

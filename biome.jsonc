@@ -3,18 +3,13 @@
   "extends": ["ultracite/core", "ultracite/react"],
   "linter": {
     "rules": {
-      "performance": {
-        "noNamespaceImport": "off"
-      },
       "style": {
         "noMagicNumbers": "off",
-        "noNestedTernary": "off"
+        "noNestedTernary": "off",
+        "useFilenamingConvention": "off"
       },
       "nursery": {
         "noShadow": "off"
-      },
-      "security": {
-        "noDangerouslySetInnerHtml": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "off"
@@ -22,19 +17,15 @@
       "suspicious": {
         "noExplicitAny": "off",
         "noEmptyBlockStatements": "off",
-        "noArrayIndexKey": "off",
-        "noDocumentCookie": "off"
+        "noArrayIndexKey": "off"
       },
       "correctness": {
-        "useImageSize": "off",
-        "noNestedComponentDefinitions": "off"
+        "useImageSize": "off"
       },
       "a11y": {
         "useSemanticElements": "off",
         "noNoninteractiveElementInteractions": "off",
-        "useKeyWithClickEvents": "off",
-        "useAriaPropsForRole": "off",
-        "useFocusableInteractive": "off"
+        "useKeyWithClickEvents": "off"
       }
     }
   }

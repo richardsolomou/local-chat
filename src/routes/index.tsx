@@ -2,6 +2,8 @@
 
 import { useChat } from "@ai-sdk/react";
 import type { BuiltInAIUIMessage } from "@built-in-ai/core";
+import { usePostHog } from "@posthog/react";
+import { cn } from "@ras-sh/ui/utils";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,7 +14,6 @@ import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
 import { ModelDownloadBanner } from "~/components/model-download-banner";
 import { ClientSideChatTransport } from "~/lib/client-side-chat-transport";
-import { cn } from "~/lib/utils";
 import { useSuggestionsStore } from "~/stores/suggestions-store";
 
 export const Route = createFileRoute("/")({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/")({
 });
 
 export default function Home() {
+  const posthog = usePostHog();
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const suggestions = useSuggestionsStore((state) => state.suggestions);
@@ -81,7 +83,7 @@ export default function Home() {
 
     if (canSubmit) {
       // Track message submission
-      window.umami?.track("message_submitted");
+      posthog?.capture("message_submitted");
 
       sendMessage({
         text: input,
@@ -119,7 +121,7 @@ export default function Home() {
       <Header />
 
       {/* Model Download Banner - Absolutely positioned */}
-      {modelDownload && (
+      {!!modelDownload && (
         <ModelDownloadBanner
           message={modelDownload.message}
           progress={modelDownload.progress}

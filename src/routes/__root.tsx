@@ -1,5 +1,4 @@
 /// <reference types="vite/client" />
-
 import geistWoff2 from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
 import geistMonoWoff2 from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
@@ -7,6 +6,7 @@ import type * as React from "react";
 import { Toaster } from "sonner";
 import { DefaultCatchBoundary } from "~/components/default-catch-boundary";
 import { NotFound } from "~/components/not-found";
+import { PHProvider } from "~/components/ph-provider";
 import { seo } from "~/lib/seo";
 import appCss from "~/styles/app.css?url";
 
@@ -62,13 +62,6 @@ export const Route = createRootRoute({
       { rel: "manifest", href: "/site.webmanifest", color: "#fffff" },
       { rel: "icon", href: "/favicon.ico" },
     ],
-    scripts: [
-      {
-        src: "https://u.tronite.com/script.js",
-        defer: true,
-        "data-website-id": "84175d66-3d90-4758-89a7-a82f213293a6",
-      },
-    ],
   }),
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
@@ -82,7 +75,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="dark min-h-dvh font-sans text-foreground antialiased">
-        {children}
+        <PHProvider>{children}</PHProvider>
         <Toaster position="top-center" richColors />
         <Scripts />
       </body>

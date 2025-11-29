@@ -1,9 +1,11 @@
 import { SiGithub } from "@icons-pack/react-simple-icons";
+import { usePostHog } from "@posthog/react";
+import { Button } from "@ras-sh/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
 
 export function Header() {
+  const posthog = usePostHog();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -16,8 +18,10 @@ export function Header() {
           </h1>
 
           <Button
-            data-umami-event="mobile_menu_toggled"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => {
+              posthog?.capture("mobile_menu_toggled");
+              setMobileMenuOpen(!mobileMenuOpen);
+            }}
             size="icon"
             variant="ghost"
           >
@@ -31,7 +35,7 @@ export function Header() {
         </div>
 
         {/* Mobile Menu Content - Floating */}
-        {mobileMenuOpen && (
+        {!!mobileMenuOpen && (
           <div className="absolute top-14 right-0 left-0 border-zinc-800 border-b p-4 shadow-lg">
             <div className="space-y-4">
               <p className="font-sans text-sm text-zinc-300 leading-relaxed">
@@ -41,9 +45,12 @@ export function Header() {
 
               <Button asChild className="w-full" size="sm">
                 <a
-                  data-umami-event="github_link_clicked"
-                  data-umami-event-location="mobile_menu"
-                  href="https://github.com/ras-sh/local-chat"
+                  href="https://github.com/richardsolomou/local-chat"
+                  onClick={() =>
+                    posthog?.capture("github_link_clicked", {
+                      location: "mobile_menu",
+                    })
+                  }
                   rel="noopener noreferrer"
                   target="_blank"
                 >
@@ -66,9 +73,12 @@ export function Header() {
 
             <Button asChild>
               <a
-                data-umami-event="github_link_clicked"
-                data-umami-event-location="desktop_header"
-                href="https://github.com/ras-sh/local-chat"
+                href="https://github.com/richardsolomou/local-chat"
+                onClick={() =>
+                  posthog?.capture("github_link_clicked", {
+                    location: "desktop_header",
+                  })
+                }
                 rel="noopener noreferrer"
                 target="_blank"
               >

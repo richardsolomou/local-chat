@@ -1,10 +1,11 @@
+import { usePostHog } from "@posthog/react";
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "~/components/ui/alert-dialog";
+} from "@ras-sh/ui/alert-dialog";
 import { useBrowserAISupport } from "~/hooks/use-browser-ai-support";
 
 function isChromiumBrowser() {
@@ -13,6 +14,7 @@ function isChromiumBrowser() {
 }
 
 export function BrowserUnsupportedDialog() {
+  const posthog = usePostHog();
   const browserSupportsModel = useBrowserAISupport();
   // Show dialog when browser support check is complete and not supported
   const isOpen = browserSupportsModel === false;
@@ -58,9 +60,12 @@ export function BrowserUnsupportedDialog() {
 
               <a
                 className="inline-flex items-center text-orange-300 underline hover:text-orange-300"
-                data-umami-event="learn_more_clicked"
-                data-umami-event-location="unsupported_dialog"
                 href="https://developer.chrome.com/docs/ai/built-in"
+                onClick={() =>
+                  posthog?.capture("learn_more_clicked", {
+                    location: "unsupported_dialog",
+                  })
+                }
                 rel="noopener noreferrer"
                 target="_blank"
               >
