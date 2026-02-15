@@ -121,8 +121,8 @@ importers:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)
       vite-tsconfig-paths:
-        specifier: ^5.1.4
-        version: 5.1.4(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
+        specifier: ^6.1.1
+        version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
 
 packages:
 
@@ -3631,6 +3631,11 @@ packages:
     engines: {node: '>=20.16.0'}
     hasBin: true
 
+  srvx@0.11.4:
+    resolution: {integrity: sha512-m/2p87bqWZ94xpRN06qNBwh0xq/D0dXajnvPDSHFqrTogxuTWYNP1UHz6Cf+oY7D+NPLY35TJAp4ESIKn0WArQ==}
+    engines: {node: '>=20.16.0'}
+    hasBin: true
+
   srvx@0.9.7:
     resolution: {integrity: sha512-N2a2nx8YTq13+A8qucg4lHZREfWOVnlMHAvrA9C2jbY9/QnVEAPzjdmpFHrY6/9BxSwIbvywCj7zahuGrVzCiQ==}
     engines: {node: '>=20.16.0'}
@@ -3929,13 +3934,10 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  vite-tsconfig-paths@5.1.4:
-    resolution: {integrity: sha512-cYj0LRuLV2c2sMqhqhGpaO3LretdtMn/BVX4cPLanIZuwwrkVl+lK84E/miEXkCHWXuq65rhNN4rXsBcOB3S4w==}
+  vite-tsconfig-paths@6.1.1:
+    resolution: {integrity: sha512-2cihq7zliibCCZ8P9cKJrQBkfgdvcFkOOc3Y02o3GWUDLgqjWsZudaoiuOwO/gzTzy17cS5F7ZPo4bsnS4DGkg==}
     peerDependencies:
       vite: '*'
-    peerDependenciesMeta:
-      vite:
-        optional: true
 
   vite@7.3.1:
     resolution: {integrity: sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==}
@@ -6610,7 +6612,7 @@ snapshots:
   h3@2.0.1-rc.14(crossws@0.4.1(srvx@0.9.7)):
     dependencies:
       rou3: 0.7.12
-      srvx: 0.11.2
+      srvx: 0.11.4
     optionalDependencies:
       crossws: 0.4.1(srvx@0.9.7)
 
@@ -7953,6 +7955,8 @@ snapshots:
 
   srvx@0.11.2: {}
 
+  srvx@0.11.4: {}
+
   srvx@0.9.7: {}
 
   streamdown@1.6.9(@types/mdast@4.0.4)(micromark-util-types@2.0.2)(micromark@4.0.2)(react@19.2.4):
@@ -8200,12 +8204,11 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-tsconfig-paths@5.1.4(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)):
+  vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.9.3)
-    optionalDependencies:
       vite: 7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)
     transitivePeerDependencies:
       - supports-color
