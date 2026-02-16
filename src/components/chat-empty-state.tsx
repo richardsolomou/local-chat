@@ -15,9 +15,9 @@ import { Suggestion } from "~/components/ai-elements/suggestion";
 import { BrowserUnsupportedDialog } from "~/components/browser-unsupported-dialog";
 import { useBrowserAISupport } from "~/hooks/use-browser-ai-support";
 
-type ChatEmptyStateProps = {
+interface ChatEmptyStateProps {
   onSuggestionClick: (suggestion: string) => void;
-};
+}
 
 const DEFAULT_SUGGESTIONS = [
   "How does AI work?",

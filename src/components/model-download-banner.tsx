@@ -5,11 +5,11 @@ import {
   AlertDialogTitle,
 } from "@ras-sh/ui/alert-dialog";
 
-type ModelDownloadBannerProps = {
+interface ModelDownloadBannerProps {
   status: "downloading" | "complete" | "error";
   progress: number;
   message: string;
-};
+}
 
 export function ModelDownloadBanner({
   status,

@@ -15,12 +15,12 @@ import {
 } from "~/components/ai-elements/message";
 import { Response } from "~/components/ai-elements/response";
 
-type ChatMessagesProps = {
+interface ChatMessagesProps {
   messages: BuiltInAIUIMessage[];
   status: ChatStatus;
   error: Error | undefined;
   onRegenerate: () => void;
-};
+}
 
 export function ChatMessages({
   messages,

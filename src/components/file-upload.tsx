@@ -3,16 +3,16 @@ import { X } from "lucide-react";
 import { type ReactNode, type RefObject, useImperativeHandle } from "react";
 import { useDropzone } from "react-dropzone";
 
-type FileUploadProps = {
+interface FileUploadProps {
   files: FileList | undefined;
   onFilesChange: (files: FileList | undefined) => void;
   disabled?: boolean;
   children?: ReactNode;
-};
+}
 
-export type FileUploadRef = {
+export interface FileUploadRef {
   openFileDialog: () => void;
-};
+}
 
 export const FileUpload = ({
   files,

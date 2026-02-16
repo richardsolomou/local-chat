@@ -26,7 +26,7 @@ import { Suggestion, Suggestions } from "~/components/ai-elements/suggestion";
 import { FileUpload, type FileUploadRef } from "~/components/file-upload";
 import { useBrowserAISupport } from "~/hooks/use-browser-ai-support";
 
-type ChatInputProps = {
+interface ChatInputProps {
   input: string;
   onInputChange: (value: string) => void;
   files: FileList | undefined;
@@ -40,7 +40,7 @@ type ChatInputProps = {
   showSuggestions: boolean;
   onClearConversation?: () => void;
   hasMessages?: boolean;
-};
+}
 
 export function ChatInput({
   input,
