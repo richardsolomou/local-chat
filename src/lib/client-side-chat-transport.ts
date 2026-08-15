@@ -77,7 +77,7 @@ export class ClientSideChatTransport implements ChatTransport<BuiltInAIUIMessage
     abortSignal,
   }: {
     model: ReturnType<typeof builtInAI>;
-    prompt: ReturnType<typeof convertToModelMessages>;
+    prompt: Awaited<ReturnType<typeof convertToModelMessages>>;
     writer: UIMessageStreamWriter<BuiltInAIUIMessage>;
     abortSignal?: AbortSignal;
   }): Promise<void> {
@@ -191,7 +191,7 @@ export class ClientSideChatTransport implements ChatTransport<BuiltInAIUIMessage
   ): Promise<ReadableStream<UIMessageChunk>> {
     const { messages, abortSignal } = options;
 
-    const prompt = convertToModelMessages(messages);
+    const prompt = await convertToModelMessages(messages);
 
     // Use Chrome's built-in Prompt API for fast, efficient inference
     const model = this.createModel();
