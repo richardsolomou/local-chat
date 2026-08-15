@@ -7,6 +7,7 @@
 A privacy-first chat interface powered by Chrome's built-in Prompt API (Gemini Nano). All inference happens locally on your device - your conversations never leave your browser.
 
 **Supported browsers:**
+
 - Chrome 128+ (with Prompt API enabled)
 - Edge 128+ (with Prompt API enabled)
 
@@ -91,14 +92,14 @@ src/
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start Vite development server |
-| `pnpm build` | Build for production |
-| `pnpm preview` | Preview production build |
-| `pnpm check-types` | TypeScript type checking |
-| `pnpm check` | Lint code with Ultracite (Biome wrapper) |
-| `pnpm fix` | Auto-fix linting issues (with --unsafe flag) |
+| Command            | Description                                  |
+| ------------------ | -------------------------------------------- |
+| `pnpm dev`         | Start Vite development server                |
+| `pnpm build`       | Build for production                         |
+| `pnpm preview`     | Preview production build                     |
+| `pnpm check-types` | TypeScript type checking                     |
+| `pnpm check`       | Lint code with Ultracite (Biome wrapper)     |
+| `pnpm fix`         | Auto-fix linting issues (with --unsafe flag) |
 
 ## Browser Requirements
 
@@ -110,6 +111,7 @@ This app requires Chrome's built-in Prompt API:
 If your browser doesn't support the Prompt API, you'll see a warning dialog on the chat interface. The app checks for support using the `doesBrowserSupportBuiltInAI()` function from `@built-in-ai/core`.
 
 To enable the Prompt API:
+
 1. Open chrome://flags/#prompt-api-for-gemini-nano
 2. Set to "Enabled"
 3. Restart Chrome
@@ -124,6 +126,7 @@ To enable the Prompt API:
 ## Key Implementation Details
 
 ### Custom Chat Transport
+
 The app implements a custom `ClientSideChatTransport` class (src/lib/client-side-chat-transport.ts:36) that integrates Chrome's Prompt API with the AI SDK. Key features:
 
 - **Model availability checking** - Checks if Gemini Nano is available, downloadable, or needs to be downloaded
@@ -132,10 +135,12 @@ The app implements a custom `ClientSideChatTransport` class (src/lib/client-side
 - **Abort handling** - Properly handles request cancellation and cleanup
 
 ### State Management
+
 - **Zustand store** (src/stores/suggestions-store.ts:9) - Manages AI-generated follow-up suggestions separately from chat state
 - **AI SDK useChat** - Handles message state, streaming, and lifecycle
 
 ### UI Components
+
 - **Radix UI primitives** - Accessible, unstyled components (buttons, dialogs, inputs, etc.)
 - **Class Variance Authority** - Type-safe component variants
 - **Tailwind CSS 4** - Latest version with Vite plugin

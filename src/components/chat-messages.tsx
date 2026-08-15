@@ -8,11 +8,7 @@ import {
   ConversationContent,
   ConversationScrollButton,
 } from "~/components/ai-elements/conversation";
-import {
-  Message,
-  MessageAvatar,
-  MessageContent,
-} from "~/components/ai-elements/message";
+import { Message, MessageAvatar, MessageContent } from "~/components/ai-elements/message";
 import { Response } from "~/components/ai-elements/response";
 
 interface ChatMessagesProps {
@@ -22,12 +18,7 @@ interface ChatMessagesProps {
   onRegenerate: () => void;
 }
 
-export function ChatMessages({
-  messages,
-  status,
-  error,
-  onRegenerate,
-}: ChatMessagesProps) {
+export function ChatMessages({ messages, status, error, onRegenerate }: ChatMessagesProps) {
   const posthog = usePostHog();
 
   return (
@@ -36,20 +27,13 @@ export function ChatMessages({
       <ConversationContent>
         <div className="space-y-4 p-4">
           {messages.map((message) => (
-            <Message
-              from={message.role === "system" ? "assistant" : message.role}
-              key={message.id}
-            >
+            <Message from={message.role === "system" ? "assistant" : message.role} key={message.id}>
               <MessageAvatar
                 icon={
                   message.role === "user" ? (
                     <User className="h-3.5 w-3.5" />
                   ) : (
-                    <img
-                      alt="Assistant"
-                      className="h-4 w-4"
-                      src="/favicon-32x32.png"
-                    />
+                    <img alt="Assistant" className="h-4 w-4" src="/favicon-32x32.png" />
                   )
                 }
               />
@@ -58,11 +42,7 @@ export function ChatMessages({
                 {message.parts.map((part, i) => {
                   switch (part.type) {
                     case "text":
-                      return (
-                        <Response key={`${message.id}-${i}`}>
-                          {part.text}
-                        </Response>
-                      );
+                      return <Response key={`${message.id}-${i}`}>{part.text}</Response>;
                     case "file":
                       if (part.mediaType?.startsWith("image/")) {
                         return (
@@ -77,22 +57,13 @@ export function ChatMessages({
                       }
                       if (part.mediaType?.startsWith("audio/")) {
                         return (
-                          <div
-                            className="mb-3 space-y-2"
-                            key={`${message.id}-${i}`}
-                          >
-                            <audio
-                              className="w-full max-w-md"
-                              controls
-                              src={part.url}
-                            >
+                          <div className="mb-3 space-y-2" key={`${message.id}-${i}`}>
+                            <audio className="w-full max-w-md" controls src={part.url}>
                               <track kind="captions" />
                               Your browser does not support the audio element.
                             </audio>
                             {!!part.filename && (
-                              <p className="text-sm text-zinc-400">
-                                {part.filename}
-                              </p>
+                              <p className="text-sm text-zinc-400">{part.filename}</p>
                             )}
                           </div>
                         );
@@ -110,13 +81,7 @@ export function ChatMessages({
           {status === "submitted" && (
             <Message from="assistant">
               <MessageAvatar
-                icon={
-                  <img
-                    alt="Assistant"
-                    className="h-4 w-4"
-                    src="/favicon-32x32.png"
-                  />
-                }
+                icon={<img alt="Assistant" className="h-4 w-4" src="/favicon-32x32.png" />}
               />
               <MessageContent>
                 <div className="mt-2 flex items-center gap-1.5 text-zinc-400">
@@ -131,9 +96,7 @@ export function ChatMessages({
           {/* Error State */}
           {!!error && (
             <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4">
-              <p className="mb-3 text-sm text-zinc-300">
-                An error occurred. Please try again.
-              </p>
+              <p className="mb-3 text-sm text-zinc-300">An error occurred. Please try again.</p>
               <Button
                 disabled={status === "streaming" || status === "submitted"}
                 onClick={() => {

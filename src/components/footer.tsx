@@ -19,10 +19,7 @@ export function Footer() {
         target="_blank"
       >
         <Avatar className="size-5">
-          <AvatarImage
-            alt="Richard Solomou"
-            src="https://github.com/richardsolomou.png"
-          />
+          <AvatarImage alt="Richard Solomou" src="https://github.com/richardsolomou.png" />
           <AvatarFallback>RS</AvatarFallback>
         </Avatar>
         @richardsolomou

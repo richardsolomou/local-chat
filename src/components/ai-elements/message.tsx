@@ -11,10 +11,8 @@ export const Message = ({ className, from, ...props }: MessageProps) => (
   <div
     className={cn(
       "group flex w-full gap-3 py-3",
-      from === "user"
-        ? "is-user flex-row-reverse"
-        : "is-assistant justify-start",
-      className
+      from === "user" ? "is-user flex-row-reverse" : "is-assistant justify-start",
+      className,
     )}
     {...props}
   />
@@ -41,16 +39,8 @@ const messageContentVariants = cva("flex flex-col gap-2 text-base", {
 export type MessageContentProps = HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof messageContentVariants>;
 
-export const MessageContent = ({
-  children,
-  className,
-  variant,
-  ...props
-}: MessageContentProps) => (
-  <div
-    className={cn(messageContentVariants({ variant, className }))}
-    {...props}
-  >
+export const MessageContent = ({ children, className, variant, ...props }: MessageContentProps) => (
+  <div className={cn(messageContentVariants({ variant, className }))} {...props}>
     {children}
   </div>
 );
@@ -59,15 +49,11 @@ export type MessageAvatarProps = HTMLAttributes<HTMLDivElement> & {
   icon?: ReactNode;
 };
 
-export const MessageAvatar = ({
-  icon,
-  className,
-  ...props
-}: MessageAvatarProps) => (
+export const MessageAvatar = ({ icon, className, ...props }: MessageAvatarProps) => (
   <div
     className={cn(
       "flex size-6 shrink-0 items-center justify-center rounded-full bg-muted/50 text-muted-foreground",
-      className
+      className,
     )}
     {...props}
   >
