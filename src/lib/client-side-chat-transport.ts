@@ -19,7 +19,7 @@ const responseSchema = z.object({
     .array(z.string())
     .optional()
     .describe(
-      "3-4 relevant follow-up questions the USER could ask next (from the user's perspective, not the assistant's)"
+      "3-4 relevant follow-up questions the USER could ask next (from the user's perspective, not the assistant's)",
     ),
 });
 
@@ -33,9 +33,7 @@ const responseSchema = z.object({
  *
  * @implements {ChatTransport<BuiltInAIUIMessage>}
  */
-export class ClientSideChatTransport
-  implements ChatTransport<BuiltInAIUIMessage>
-{
+export class ClientSideChatTransport implements ChatTransport<BuiltInAIUIMessage> {
   /**
    * Initialize and return the base model.
    */
@@ -149,9 +147,7 @@ export class ClientSideChatTransport
         const finalObject = await result.object;
         if (finalObject.suggestions && finalObject.suggestions.length > 0) {
           // Update Zustand store with suggestions
-          useSuggestionsStore
-            .getState()
-            .setSuggestions(finalObject.suggestions);
+          useSuggestionsStore.getState().setSuggestions(finalObject.suggestions);
         }
       }
     } catch (error) {
@@ -191,7 +187,7 @@ export class ClientSideChatTransport
     } & {
       trigger: "submit-message" | "submit-tool-result" | "regenerate-message";
       messageId: string | undefined;
-    } & ChatRequestOptions
+    } & ChatRequestOptions,
   ): Promise<ReadableStream<UIMessageChunk>> {
     const { messages, abortSignal } = options;
 
@@ -230,8 +226,7 @@ export class ClientSideChatTransport
                   id: downloadProgressId,
                   status: "complete",
                   progress: 100,
-                  message:
-                    "Model finished downloading! Getting ready for inference...",
+                  message: "Model finished downloading! Getting ready for inference...",
                 });
               }
               return;

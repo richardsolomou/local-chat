@@ -11,11 +11,7 @@ interface ModelDownloadBannerProps {
   message: string;
 }
 
-export function ModelDownloadBanner({
-  status,
-  progress,
-  message,
-}: ModelDownloadBannerProps) {
+export function ModelDownloadBanner({ status, progress, message }: ModelDownloadBannerProps) {
   // Don't show anything if complete or no message
   const isOpen = status !== "complete" && !!message;
 
@@ -28,9 +24,7 @@ export function ModelDownloadBanner({
             <div className="flex items-center justify-between gap-4">
               <p className="font-mono text-sm text-zinc-300">{message}</p>
               {status === "downloading" && (
-                <span className="font-mono text-sm text-zinc-400 tabular-nums">
-                  {progress}%
-                </span>
+                <span className="font-mono text-sm text-zinc-400 tabular-nums">{progress}%</span>
               )}
             </div>
             {status === "downloading" && (
@@ -41,9 +35,7 @@ export function ModelDownloadBanner({
                 />
               </div>
             )}
-            {status === "error" && (
-              <p className="text-red-400 text-sm">{message}</p>
-            )}
+            {status === "error" && <p className="text-red-400 text-sm">{message}</p>}
           </div>
         </AlertDialogDescription>
       </AlertDialogContent>

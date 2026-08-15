@@ -68,11 +68,7 @@ export function ChatInput({
 
   // Autofocus the textarea after a message finishes
   useEffect(() => {
-    if (
-      prevStatusRef.current === "streaming" &&
-      status === "ready" &&
-      textareaRef.current
-    ) {
+    if (prevStatusRef.current === "streaming" && status === "ready" && textareaRef.current) {
       textareaRef.current.focus();
     }
     prevStatusRef.current = status;
@@ -139,9 +135,7 @@ export function ChatInput({
                   <AlertDialogTrigger asChild>
                     <Button
                       disabled={isInputDisabled}
-                      onClick={() =>
-                        posthog?.capture("clear_conversation_button_clicked")
-                      }
+                      onClick={() => posthog?.capture("clear_conversation_button_clicked")}
                       size="icon"
                       type="button"
                       variant="ghost"
@@ -153,8 +147,8 @@ export function ChatInput({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Clear conversation?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will delete all messages in the current
-                        conversation. This action cannot be undone.
+                        This will delete all messages in the current conversation. This action
+                        cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -176,20 +170,11 @@ export function ChatInput({
               disabled={
                 status === "submitted" || status === "streaming"
                   ? false
-                  : isDisabled ||
-                    (!input.trim() && (!files || files.length === 0))
+                  : isDisabled || (!input.trim() && (!files || files.length === 0))
               }
-              onClick={
-                status === "submitted" || status === "streaming"
-                  ? stop
-                  : () => {}
-              }
+              onClick={status === "submitted" || status === "streaming" ? stop : () => {}}
               status={status}
-              type={
-                status === "submitted" || status === "streaming"
-                  ? "button"
-                  : "submit"
-              }
+              type={status === "submitted" || status === "streaming" ? "button" : "submit"}
             />
           </PromptInputFooter>
         </PromptInput>

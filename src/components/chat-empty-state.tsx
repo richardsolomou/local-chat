@@ -1,11 +1,5 @@
 import { usePostHog } from "@posthog/react";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@ras-sh/ui/empty";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@ras-sh/ui/empty";
 import {
   Conversation,
   ConversationContent,
@@ -39,9 +33,7 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
         <Empty className="border-0">
           <EmptyHeader>
             <EmptyTitle>Start a conversation</EmptyTitle>
-            <EmptyDescription>
-              Ask me anything or try one of these suggestions
-            </EmptyDescription>
+            <EmptyDescription>Ask me anything or try one of these suggestions</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
             <div className="flex w-full flex-wrap justify-center gap-2">

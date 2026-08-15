@@ -31,55 +31,45 @@ export default function Home() {
     message: string;
   } | null>(null);
 
-  const {
-    error,
-    status,
-    sendMessage,
-    messages,
-    regenerate,
-    stop,
-    setMessages,
-  } = useChat<BuiltInAIUIMessage>({
-    transport: new ClientSideChatTransport(),
-    onError(error) {
-      toast.error(error.message);
-    },
-    onData: (dataPart) => {
-      // Handle model download progress
-      if (dataPart.type === "data-modelDownloadProgress") {
-        setModelDownload({
-          status: dataPart.data.status,
-          progress: dataPart.data.progress ?? 0,
-          message: dataPart.data.message,
-        });
-        // Clear the download banner when complete
-        if (dataPart.data.status === "complete") {
-          setTimeout(() => setModelDownload(null), 500);
+  const { error, status, sendMessage, messages, regenerate, stop, setMessages } =
+    useChat<BuiltInAIUIMessage>({
+      transport: new ClientSideChatTransport(),
+      onError(error) {
+        toast.error(error.message);
+      },
+      onData: (dataPart) => {
+        // Handle model download progress
+        if (dataPart.type === "data-modelDownloadProgress") {
+          setModelDownload({
+            status: dataPart.data.status,
+            progress: dataPart.data.progress ?? 0,
+            message: dataPart.data.message,
+          });
+          // Clear the download banner when complete
+          if (dataPart.data.status === "complete") {
+            setTimeout(() => setModelDownload(null), 500);
+          }
+          return;
         }
-        return;
-      }
-      // Handle transient notifications
-      if (dataPart.type === "data-notification") {
-        if (dataPart.data.level === "error") {
-          toast.error(dataPart.data.message);
-        } else if (dataPart.data.level === "warning") {
-          toast.warning(dataPart.data.message);
-        } else {
-          toast.info(dataPart.data.message);
+        // Handle transient notifications
+        if (dataPart.type === "data-notification") {
+          if (dataPart.data.level === "error") {
+            toast.error(dataPart.data.message);
+          } else if (dataPart.data.level === "warning") {
+            toast.warning(dataPart.data.message);
+          } else {
+            toast.info(dataPart.data.message);
+          }
         }
-      }
-    },
-  });
+      },
+    });
 
   const isLoading = status !== "ready";
 
   // Send a message
   const handleSubmit = () => {
     // Allow submission when ready, or after an error/stop (not during submit/stream)
-    const canSubmit =
-      (input.trim() || files) &&
-      status !== "submitted" &&
-      status !== "streaming";
+    const canSubmit = (input.trim() || files) && status !== "submitted" && status !== "streaming";
 
     if (canSubmit) {
       // Track message submission
@@ -133,7 +123,7 @@ export default function Home() {
       <main
         className={cn(
           "relative mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col",
-          messages.length === 0 && "items-center justify-center"
+          messages.length === 0 && "items-center justify-center",
         )}
       >
         {messages.length === 0 ? (

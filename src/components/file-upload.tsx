@@ -82,10 +82,7 @@ export const FileUpload = ({
       {!!files && files.length > 0 && (
         <div className="mb-3 flex gap-2">
           {Array.from(files).map((file, index) => (
-            <div
-              className="group relative overflow-hidden rounded-lg bg-zinc-800/40"
-              key={index}
-            >
+            <div className="group relative overflow-hidden rounded-lg bg-zinc-800/40" key={index}>
               {file.type.startsWith("image/") ? (
                 <img
                   alt={file.name}
@@ -94,9 +91,7 @@ export const FileUpload = ({
                 />
               ) : (
                 <div className="flex h-20 w-20 items-center justify-center">
-                  <span className="max-w-[60px] truncate text-xs text-zinc-400">
-                    {file.name}
-                  </span>
+                  <span className="max-w-[60px] truncate text-xs text-zinc-400">{file.name}</span>
                 </div>
               )}
               <button
