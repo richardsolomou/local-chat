@@ -53,7 +53,7 @@
     "date-fns": "^4.4.0",
     "lucide-react": "^1.44.0",
     "nanoid": "^6.0.1",
-    "posthog-js": "^1.429.5",
+    "posthog-js": "^1.430.3",
     "ras-stack": "^3.0.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
