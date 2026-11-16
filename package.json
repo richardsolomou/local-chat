@@ -58,7 +58,7 @@
     "date-fns": "^4.4.0",
     "lucide-react": "^1.49.0",
     "nanoid": "^6.0.1",
-    "posthog-js": "^1.435.6",
+    "posthog-js": "^1.450.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-dropzone": "^20.1.2",
