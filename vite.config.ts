@@ -1,14 +1,14 @@
-import path from "node:path";
-import { cloudflare } from "@cloudflare/vite-plugin";
-import tailwindcss from "@tailwindcss/vite";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import viteReact from "@vitejs/plugin-react-swc";
-import { defineConfig } from "vite";
-import tsConfigPaths from "vite-tsconfig-paths";
+import path from 'node:path'
+import { cloudflare } from '@cloudflare/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import viteReact from '@vitejs/plugin-react-swc'
+import { defineConfig } from 'vite'
+import tsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
     tsConfigPaths(),
     tanstackStart({ prerender: { enabled: true } }),
     viteReact(),
@@ -16,10 +16,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "~": path.resolve(import.meta.dirname, "./src"),
+      '~': path.resolve(import.meta.dirname, './src'),
     },
   },
   ssr: {
-    noExternal: ["streamdown", "posthog-js", "@posthog/react"],
+    noExternal: ['streamdown', 'posthog-js', '@posthog/react'],
   },
-});
+})

@@ -92,17 +92,17 @@ src/
 
 ## Scripts
 
-| Command          | Description                                      |
-| ---------------- | ------------------------------------------------ |
-| `pnpm dev`       | Start Vite development server                    |
-| `pnpm build`     | Build for production                             |
-| `pnpm preview`   | Preview production build                         |
-| `pnpm typecheck` | TypeScript type checking                         |
-| `pnpm lint`      | Lint with Oxlint                                 |
-| `pnpm format`    | Format with Oxfmt                                |
-| `pnpm test`      | Run the Vitest tests                             |
-| `pnpm check`     | Run formatting, lint, types, and tests, like CI  |
-| `pnpm fix`       | Format and apply Oxlint fixes                    |
+| Command          | Description                                     |
+| ---------------- | ----------------------------------------------- |
+| `pnpm dev`       | Start Vite development server                   |
+| `pnpm build`     | Build for production                            |
+| `pnpm preview`   | Preview production build                        |
+| `pnpm typecheck` | TypeScript type checking                        |
+| `pnpm lint`      | Lint with Oxlint                                |
+| `pnpm format`    | Format with Oxfmt                               |
+| `pnpm test`      | Run the Vitest tests                            |
+| `pnpm check`     | Run formatting, lint, types, and tests, like CI |
+| `pnpm fix`       | Format and apply Oxlint fixes                   |
 
 ## Browser Requirements
 
