@@ -39,8 +39,8 @@
       ]
     },
     "start-app": {
-      "version": 2,
-      "commit": "82fce4523ec914bd2e70aefd4bff84c10fb278c6",
+      "version": 3,
+      "commit": "9c8c374857be9d85d59097ae2d538026e45225ec",
       "files": {
         "src/client/chunkRecovery.test.ts": "src/client/chunkRecovery.test.ts",
         "src/client/chunkRecovery.ts": "src/client/chunkRecovery.ts",
