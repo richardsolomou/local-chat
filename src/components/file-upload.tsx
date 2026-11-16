@@ -1,17 +1,17 @@
-import { usePostHog } from "@posthog/react";
-import { X } from "lucide-react";
-import { type ReactNode, type RefObject, useImperativeHandle } from "react";
-import { useDropzone } from "react-dropzone";
+import { usePostHog } from '@posthog/react'
+import { X } from 'lucide-react'
+import { type ReactNode, type RefObject, useImperativeHandle } from 'react'
+import { useDropzone } from 'react-dropzone'
 
 interface FileUploadProps {
-  files: FileList | undefined;
-  onFilesChange: (files: FileList | undefined) => void;
-  disabled?: boolean;
-  children?: ReactNode;
+  files: FileList | undefined
+  onFilesChange: (files: FileList | undefined) => void
+  disabled?: boolean
+  children?: ReactNode
 }
 
 export interface FileUploadRef {
-  openFileDialog: () => void;
+  openFileDialog: () => void
 }
 
 export const FileUpload = ({
@@ -21,11 +21,11 @@ export const FileUpload = ({
   children,
   ref,
 }: FileUploadProps & { ref?: RefObject<FileUploadRef | null> }) => {
-  const posthog = usePostHog();
+  const posthog = usePostHog()
   const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
     accept: {
-      "image/*": [],
-      "audio/*": [],
+      'image/*': [],
+      'audio/*': [],
     },
     multiple: true,
     disabled,
@@ -33,39 +33,39 @@ export const FileUpload = ({
     noKeyboard: true,
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
-        const dt = new DataTransfer();
+        const dt = new DataTransfer()
         // Add existing files
         if (files) {
           for (const file of Array.from(files)) {
-            dt.items.add(file);
+            dt.items.add(file)
           }
         }
         // Add new files
         for (const file of acceptedFiles) {
-          dt.items.add(file);
+          dt.items.add(file)
         }
-        onFilesChange(dt.files);
+        onFilesChange(dt.files)
       }
     },
-  });
+  })
 
   useImperativeHandle(ref, () => ({
     openFileDialog: () => {
-      open();
+      open()
     },
-  }));
+  }))
 
   const removeFile = (indexToRemove: number) => {
     if (files) {
-      const dt = new DataTransfer();
+      const dt = new DataTransfer()
       Array.from(files).forEach((file, index) => {
         if (index !== indexToRemove) {
-          dt.items.add(file);
+          dt.items.add(file)
         }
-      });
-      onFilesChange(dt.files);
+      })
+      onFilesChange(dt.files)
     }
-  };
+  }
 
   return (
     <div {...getRootProps()} className="relative">
@@ -83,12 +83,8 @@ export const FileUpload = ({
         <div className="mb-3 flex gap-2">
           {Array.from(files).map((file, index) => (
             <div className="group relative overflow-hidden rounded-lg bg-zinc-800/40" key={index}>
-              {file.type.startsWith("image/") ? (
-                <img
-                  alt={file.name}
-                  className="h-20 w-20 object-cover"
-                  src={URL.createObjectURL(file)}
-                />
+              {file.type.startsWith('image/') ? (
+                <img alt={file.name} className="h-20 w-20 object-cover" src={URL.createObjectURL(file)} />
               ) : (
                 <div className="flex h-20 w-20 items-center justify-center">
                   <span className="max-w-[60px] truncate text-xs text-zinc-400">{file.name}</span>
@@ -97,8 +93,8 @@ export const FileUpload = ({
               <button
                 className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
                 onClick={() => {
-                  posthog?.capture("file_removed");
-                  removeFile(index);
+                  posthog?.capture('file_removed')
+                  removeFile(index)
                 }}
                 type="button"
               >
@@ -112,9 +108,9 @@ export const FileUpload = ({
       {/* Children content (chat input) */}
       {children}
     </div>
-  );
-};
+  )
+}
 
-FileUpload.displayName = "FileUpload";
+FileUpload.displayName = 'FileUpload'
 
-export type { FileUploadProps };
+export type { FileUploadProps }

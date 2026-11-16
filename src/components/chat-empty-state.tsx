@@ -1,29 +1,25 @@
-import { usePostHog } from "@posthog/react";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@ras-sh/ui/empty";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton,
-} from "~/components/ai-elements/conversation";
-import { Suggestion } from "~/components/ai-elements/suggestion";
-import { BrowserUnsupportedDialog } from "~/components/browser-unsupported-dialog";
-import { useBrowserAISupport } from "~/hooks/use-browser-ai-support";
+import { usePostHog } from '@posthog/react'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from '@ras-sh/ui/empty'
+import { Conversation, ConversationContent, ConversationScrollButton } from '~/components/ai-elements/conversation'
+import { Suggestion } from '~/components/ai-elements/suggestion'
+import { BrowserUnsupportedDialog } from '~/components/browser-unsupported-dialog'
+import { useBrowserAISupport } from '~/hooks/use-browser-ai-support'
 
 interface ChatEmptyStateProps {
-  onSuggestionClick: (suggestion: string) => void;
+  onSuggestionClick: (suggestion: string) => void
 }
 
 const DEFAULT_SUGGESTIONS = [
-  "How does AI work?",
-  "Are black holes real?",
+  'How does AI work?',
+  'Are black holes real?',
   'How many Rs are in the word "strawberry"?',
-  "What is the meaning of life?",
-];
+  'What is the meaning of life?',
+]
 
 export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
-  const posthog = usePostHog();
-  const browserSupportsModel = useBrowserAISupport();
-  const isDisabled = browserSupportsModel === false;
+  const posthog = usePostHog()
+  const browserSupportsModel = useBrowserAISupport()
+  const isDisabled = browserSupportsModel === false
 
   return (
     <Conversation>
@@ -42,11 +38,11 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
                   disabled={isDisabled}
                   key={index}
                   onClick={(s) => {
-                    posthog?.capture("suggestion_clicked", {
+                    posthog?.capture('suggestion_clicked', {
                       index,
-                      source: "empty_state",
-                    });
-                    onSuggestionClick(s);
+                      source: 'empty_state',
+                    })
+                    onSuggestionClick(s)
                   }}
                   suggestion={suggestion}
                 />
@@ -58,7 +54,7 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
 
       <ConversationScrollButton />
     </Conversation>
-  );
+  )
 }
 
-export type { ChatEmptyStateProps };
+export type { ChatEmptyStateProps }

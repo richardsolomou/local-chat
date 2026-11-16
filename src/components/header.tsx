@@ -1,12 +1,12 @@
-import { SiGithub } from "@icons-pack/react-simple-icons";
-import { usePostHog } from "@posthog/react";
-import { Button } from "@ras-sh/ui/button";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { SiGithub } from '@icons-pack/react-simple-icons'
+import { usePostHog } from '@posthog/react'
+import { Button } from '@ras-sh/ui/button'
+import { Menu, X } from 'lucide-react'
+import { useState } from 'react'
 
 export function Header() {
-  const posthog = usePostHog();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const posthog = usePostHog()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <>
@@ -17,8 +17,8 @@ export function Header() {
 
           <Button
             onClick={() => {
-              posthog?.capture("mobile_menu_toggled");
-              setMobileMenuOpen(!mobileMenuOpen);
+              posthog?.capture('mobile_menu_toggled')
+              setMobileMenuOpen(!mobileMenuOpen)
             }}
             size="icon"
             variant="ghost"
@@ -33,16 +33,15 @@ export function Header() {
           <div className="absolute top-14 right-0 left-0 border-zinc-800 border-b p-4 shadow-lg">
             <div className="space-y-4">
               <p className="font-sans text-sm text-zinc-300 leading-relaxed">
-                💬 Local-first AI chat using Chrome's built-in AI. Conversations run entirely in
-                your browser and stay on your device.
+                💬 Local-first AI chat using Chrome's built-in AI. Conversations run entirely in your browser and stay on your device.
               </p>
 
               <Button asChild className="w-full" size="sm">
                 <a
                   href="https://github.com/richardsolomou/local-chat"
                   onClick={() =>
-                    posthog?.capture("github_link_clicked", {
-                      location: "mobile_menu",
+                    posthog?.capture('github_link_clicked', {
+                      location: 'mobile_menu',
                     })
                   }
                   rel="noopener noreferrer"
@@ -67,8 +66,8 @@ export function Header() {
               <a
                 href="https://github.com/richardsolomou/local-chat"
                 onClick={() =>
-                  posthog?.capture("github_link_clicked", {
-                    location: "desktop_header",
+                  posthog?.capture('github_link_clicked', {
+                    location: 'desktop_header',
                   })
                 }
                 rel="noopener noreferrer"
@@ -81,11 +80,10 @@ export function Header() {
           </div>
 
           <p className="font-sans text-xl text-zinc-300 leading-relaxed">
-            💬 Local-first AI chat using Chrome's built-in AI. Conversations run entirely in your
-            browser and stay on your device.
+            💬 Local-first AI chat using Chrome's built-in AI. Conversations run entirely in your browser and stay on your device.
           </p>
         </div>
       </header>
     </>
-  );
+  )
 }
