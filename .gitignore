@@ -8,3 +8,4 @@ dist/
 coverage/
 .DS_Store
 src/routeTree.gen.ts
+.dev.vars*
