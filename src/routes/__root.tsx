@@ -1,16 +1,18 @@
 /// <reference types="vite/client" />
 import geistWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
 import geistMonoWoff2 from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url'
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
-import type * as React from 'react'
+import type { QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 import { Toaster } from 'sonner'
+import { chunkRecoveryScript, updateNoticeId } from '~/client/chunkRecovery'
 import { DefaultCatchBoundary } from '~/components/default-catch-boundary'
 import { NotFound } from '~/components/not-found'
 import { PHProvider } from '~/components/ph-provider'
 import { seo } from '~/lib/seo'
 import appCss from '~/styles/app.css?url'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       {
@@ -62,23 +64,37 @@ export const Route = createRootRoute({
       { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
       { rel: 'icon', href: '/favicon.ico' },
     ],
+    scripts: [{ children: chunkRecoveryScript }],
   }),
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
-  shellComponent: RootDocument,
+  shellComponent: Document,
+  component: Root,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+// A shell keeps the root's error and not-found pages inside the document, and `Root`'s providers inside the root's error boundary.
+function Document({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body className="dark min-h-dvh font-sans text-foreground antialiased">
-        <PHProvider>{children}</PHProvider>
+        <p id={updateNoticeId} hidden className="bg-amber-100 px-4 py-2 text-center text-sm text-amber-950">
+          A new version is available. Reload the page to continue.
+        </p>
+        {children}
         <Toaster position="top-center" richColors />
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function Root() {
+  return (
+    <PHProvider>
+      <Outlet />
+    </PHProvider>
   )
 }
